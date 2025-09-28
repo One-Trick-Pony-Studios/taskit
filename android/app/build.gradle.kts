@@ -1,3 +1,6 @@
+import com.android.build.api.dsl.ApplicationExtension
+import java.util.*
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -24,6 +27,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" // Added for Espresso
     }
 
     signingConfigs {
@@ -65,6 +69,11 @@ android {
         }
     }
 
+    // Add test options for Espresso
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        animationsDisabled = true // Disable animations for reliable testing
+    }
 }
 
 flutter {
@@ -73,4 +82,22 @@ flutter {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    // Test dependencies for Espresso
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+
+    // JUnit runner
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+
+    // ActivityScenarioRule
+    androidTestImplementation("androidx.test:core:1.5.0")
+
+    // Intent validation
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+
+    // Kotlin test support
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.10")
+
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
 }

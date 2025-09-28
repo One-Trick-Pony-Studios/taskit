@@ -6,7 +6,6 @@ import android.provider.CalendarContract
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import android.content.pm.PackageManager
 import android.util.Log
 
 class MainActivity : FlutterActivity() {
@@ -28,11 +27,25 @@ class MainActivity : FlutterActivity() {
     private fun handleIntent(intent: Intent) {
         val action = intent.action
         val type = intent.type
-        if (Intent.ACTION_PROCESS_TEXT == action && type == "text/plain") {
-            sharedText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
-            Log.d(TAG, "Received shared text: $sharedText")
-            redirectToCalendar(sharedText ?: "")
-            finish() // ✅ Exit TaskIt after launching calendar
+        when {
+            Intent.ACTION_PROCESS_TEXT == action && type == "text/plain" -> {
+                sharedText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT)
+                Log.d(TAG, "Received 'Create Task' text: $sharedText")
+            }
+            Intent.ACTION_SEND == action && type == "text/plain" -> {
+                sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
+                Log.d(TAG, "Received 'Share' text: $sharedText")
+            }
+        }
+        if (sharedText != null) {
+            Log.d(TAG, "Scheduling redirect for text: $sharedText")
+            window.decorView.post {
+                redirectToCalendar(sharedText) // Use safe call, handle null inside
+                finish() // Close activity after redirect
+            }
+        } else {
+            Log.d(TAG, "No shared text to process, finishing activity")
+            finish()
         }
     }
 
@@ -44,7 +57,7 @@ class MainActivity : FlutterActivity() {
                 if (call.method == "getSharedText") {
                     Log.d(TAG, "getSharedText called, returning: $sharedText")
                     result.success(sharedText)
-                    sharedText = null
+                    sharedText = null // Clear after sending to avoid reuse
                 } else {
                     result.notImplemented()
                 }
@@ -53,22 +66,12 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CALENDAR_CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    "isPackageInstalled" -> {
-                        val packageName = call.argument<String>("packageName")
-                        try {
-                            packageManager.getPackageInfo(packageName!!, 0)
-                            result.success(true)
-                        } catch (e: PackageManager.NameNotFoundException) {
-                            result.success(false)
-                        }
-                    }
-                    "addGoogleCalendarEvent" -> {
+                    "addCalendarEvent" -> {
                         val title = call.argument<String>("title")
-                        val description = call.argument<String>("description")
                         val startTime = call.argument<Long>("startTime")
                         val endTime = call.argument<Long>("endTime")
-                        redirectToCalendar(title ?: "", description, startTime, endTime)
-                        result.success(true)
+                        redirectToCalendar(title, startTime, endTime)
+                        result.success(null)
                     }
                     else -> result.notImplemented()
                 }
@@ -76,39 +79,28 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun redirectToCalendar(
-        title: String,
-        description: String? = null,
+        title: String?,
         startTime: Long? = null,
         endTime: Long? = null
     ) {
-        val prefs = getSharedPreferences("TaskItPrefs", MODE_PRIVATE)
-        val preferredApp = prefs.getString("preferred_app", "com.google.android.calendar")
+        if (title == null) {
+            Log.w(TAG, "Title is null, skipping redirect")
+            return
+        }
         val intent = Intent(Intent.ACTION_INSERT).apply {
             data = CalendarContract.Events.CONTENT_URI
             putExtra(CalendarContract.Events.TITLE, title.ifEmpty { "TaskIt Task" })
-            putExtra(CalendarContract.Events.DESCRIPTION, description ?: "Created by TaskIt")
+            putExtra(CalendarContract.Events.DESCRIPTION, "Created by TaskIt")
             putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startTime ?: System.currentTimeMillis())
             putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime ?: System.currentTimeMillis() + 3600000)
-            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            if (isPackageInstalled(preferredApp!!)) {
-                setPackage(preferredApp)
-            }
         }
 
         try {
             startActivity(intent)
+            Log.d(TAG, "Successfully launched calendar intent for title: $title")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to launch calendar intent: ${e.message}")
-        }
-    }
-
-    private fun isPackageInstalled(packageName: String): Boolean {
-        return try {
-            packageManager.getPackageInfo(packageName, 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
         }
     }
 }
