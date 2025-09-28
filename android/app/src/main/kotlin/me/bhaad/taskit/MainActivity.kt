@@ -45,7 +45,7 @@ class MainActivity : FlutterActivity() {
             }
         } else {
             Log.d(TAG, "No shared text to process, finishing activity")
-            finish()
+            //finish()
         }
     }
 

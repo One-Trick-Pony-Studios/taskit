@@ -12,6 +12,7 @@ dependencies:
   receive_sharing_intent:
     git:
       url: https://github.com/KasemJaffer/receive_sharing_intent
+  smooth_page_indicator: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -24,3 +25,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/app_icon.png
+    - assets/onboarding/seq_1.png
+    - assets/onboarding/seq_2_a.png
+    - assets/onboarding/seq_2_b.png
+    - assets/onboarding/seq_3.png
+    - assets/onboarding/seq_4.png
+    - assets/onboarding/seq_5.png
