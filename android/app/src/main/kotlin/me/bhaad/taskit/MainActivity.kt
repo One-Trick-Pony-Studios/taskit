@@ -8,6 +8,12 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import android.util.Log
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
+
 class MainActivity : FlutterActivity() {
     private var sharedText: String? = null
     private val PROCESS_TEXT_CHANNEL = "app.channel.process.data"
@@ -87,6 +93,15 @@ class MainActivity : FlutterActivity() {
             Log.w(TAG, "Title is null, skipping redirect")
             return
         }
+
+        // Check calendar permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
+            != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "Calendar permission not granted, requesting...")
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_CALENDAR), 1001)
+            return
+        }
+
         val intent = Intent(Intent.ACTION_INSERT).apply {
             data = CalendarContract.Events.CONTENT_URI
             putExtra(CalendarContract.Events.TITLE, title.ifEmpty { "TaskIt Task" })
@@ -101,6 +116,20 @@ class MainActivity : FlutterActivity() {
             Log.d(TAG, "Successfully launched calendar intent for title: $title")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to launch calendar intent: ${e.message}")
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Calendar permission granted, retrying redirect")
+            redirectToCalendar(sharedText)
+        } else {
+            Log.w(TAG, "Calendar permission denied")
         }
     }
 }

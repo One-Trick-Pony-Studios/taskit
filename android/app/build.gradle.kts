@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         applicationId = "me.bhaad.taskit"
-        minSdk = flutter.minSdkVersion
+        minSdk = project.findProperty("flutter.minSdkVersion")?.toString()?.toInt() ?: 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
