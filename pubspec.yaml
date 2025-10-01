@@ -13,6 +13,8 @@ dependencies:
     git:
       url: https://github.com/KasemJaffer/receive_sharing_intent
   smooth_page_indicator: ^1.1.0
+  flutter_svg: ^2.0.7 
+
 
 dev_dependencies:
   flutter_test:
@@ -20,14 +22,21 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   mockito: ^5.4.4
   build_runner: ^2.4.11
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   assets:
     - assets/icons/app_icon.png
+    - assets/icons/app_icon.svg
     - assets/onboarding/seq_1.png
     - assets/onboarding/seq_2_a.png
     - assets/onboarding/seq_2_b.png
     - assets/onboarding/seq_3.png
     - assets/onboarding/seq_4.png
     - assets/onboarding/seq_5.png
+
+flutter_launcher_icons:
+  image_path: "assets/icons/app_icon.png"
+  android: true
+  ios: true

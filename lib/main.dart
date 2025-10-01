@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'platform/channels.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   runApp(const TaskitApp());
@@ -66,7 +67,12 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/icons/app_icon.png', height: 100, width: 100),
+            SvgPicture.asset(
+              'assets/icons/app_icon.svg',
+              width: 100, // or whatever size you need
+              height: 100,
+              semanticsLabel: 'TaskIt logo',
+            ),
             const SizedBox(height: 16),
             const Text('TaskIt', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           ],
@@ -87,7 +93,12 @@ class InfoScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            Image.asset('assets/icons/app_icon.png', height: 100),
+            SvgPicture.asset(
+              'assets/icons/app_icon.svg',
+              width: 100, // or whatever size you need
+              height: 100,
+              semanticsLabel: 'TaskIt logo',
+            ),
             const SizedBox(height: 16),
             const Text('TaskIt is ready to help',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
