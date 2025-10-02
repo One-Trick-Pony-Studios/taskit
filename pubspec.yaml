@@ -14,6 +14,7 @@ dependencies:
       url: https://github.com/KasemJaffer/receive_sharing_intent
   smooth_page_indicator: ^1.1.0
   flutter_svg: ^2.0.7 
+  video_player: ^2.7.2 
 
 
 dev_dependencies:
@@ -29,12 +30,17 @@ flutter:
   assets:
     - assets/icons/app_icon.png
     - assets/icons/app_icon.svg
-    - assets/onboarding/seq_1.png
-    - assets/onboarding/seq_2_a.png
-    - assets/onboarding/seq_2_b.png
-    - assets/onboarding/seq_3.png
-    - assets/onboarding/seq_4.png
-    - assets/onboarding/seq_5.png
+    - assets/homepage/calendar_gif.gif
+    - assets/onboarding/pixel8_front.png
+    - assets/onboarding/onboarding_blur_1.mp4
+    - assets/onboarding/onboarding_blur_2.mp4
+    - assets/onboarding/shareit.png
+    - assets/onboarding/taskit.png
+
+  fonts:
+      - family: RhodiumLibre
+        fonts:
+          - asset: assets/fonts/RhodiumLibre-Regular.ttf
 
 flutter_launcher_icons:
   image_path: "assets/icons/app_icon.png"
