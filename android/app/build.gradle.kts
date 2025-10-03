@@ -1,10 +1,18 @@
 import com.android.build.api.dsl.ApplicationExtension
 import java.util.*
+import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -32,10 +40,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("taskit-release.keystore")
-            storePassword = "@nshul@12"
-            keyAlias = "taskit-key-alias"
-            keyPassword = "@nshul@12"
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+            storePassword = keystoreProperties["storePassword"] as String
         }
     }
 
