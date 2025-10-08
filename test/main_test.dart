@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:taskit/main.dart';
 import 'package:taskit/platform/channels.dart';
+import 'package:taskit/screens/splash.dart';
 
 // Generated mock file
 import 'main_test.mocks.dart';
