@@ -28,6 +28,7 @@ class InfoScreen extends StatelessWidget {
         }
 
         final sdkInt = sdkSnapshot.data!;
+        final minSdk = 30; // Changed to 31 to match SplashScreen logic (Android 11+)
         debugPrint('Detected Android SDK: $sdkInt');
 
         return Scaffold(
@@ -50,35 +51,40 @@ class InfoScreen extends StatelessWidget {
                         child: Container(color: Colors.white),
                       ),
 
-                      // Gradient layers (only for Android 13+)
-                      if (sdkInt >= 33)
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(24)),
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Color(0x33FDFF8E),
-                                    Color(0x33A8D16A),
-                                    Color(0x3301A414),
-                                  ],
+                      // Single gradient layer matching SplashScreen (conditional opacity)
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(24)),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: sdkInt >= minSdk
+                                    ? const <Color>[
+                                        Color(0x80FDFF8E),
+                                        Color(0x80A8D16A),
+                                        Color(0x8001A414),
+                                      ]
+                                    : const <Color>[
+                                        Color(0x80FDFF8E),
+                                        Color(0x80A8D16A),
+                                        Color(0x8001A414),
+                                      ],
                                   stops: [0.0, 0.5, 0.9],
-                                ),
                               ),
                             ),
                           ),
                         ),
-                      if (sdkInt >= 33)
+                      ),
+
+                      // Additional gradient layers (only for Android 11+)
+                      if (sdkInt >= minSdk)
                         Positioned.fill(
                           child: Transform.translate(
                             offset: const Offset(20, 20),
                             child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(24)),
+                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24)),
                               child: Container(
                                 decoration: const BoxDecoration(
                                   gradient: LinearGradient(
@@ -96,13 +102,12 @@ class InfoScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                      if (sdkInt >= 33)
+                      if (sdkInt >= minSdk)
                         Positioned.fill(
                           child: Transform.translate(
                             offset: const Offset(40, 40),
                             child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(24)),
+                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24)),
                               child: Container(
                                 decoration: const BoxDecoration(
                                   gradient: LinearGradient(
@@ -128,7 +133,7 @@ class InfoScreen extends StatelessWidget {
                             const Spacer(flex: 2),
 
                             // Image/GIF based on Android version
-                            if (sdkInt >= 33)
+                            if (sdkInt >= minSdk)
                               Image.asset(
                                 'assets/homepage/calendar_gif.gif',
                                 width: 150,
@@ -148,8 +153,7 @@ class InfoScreen extends StatelessWidget {
                             const SizedBox(height: 24),
 
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 48.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 48.0),
                               child: Align(
                                 alignment: Alignment.center,
                                 widthFactor: 0.7,
@@ -168,7 +172,7 @@ class InfoScreen extends StatelessWidget {
 
                             const Spacer(flex: 2),
                             // Conditional action based on Android version
-                            if (sdkInt >= 33)
+                            if (sdkInt >= minSdk)
                               Column(
                                 children: [
                                   ElevatedButton(
@@ -182,8 +186,7 @@ class InfoScreen extends StatelessWidget {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (_) =>
-                                                const OnboardingScreen()),
+                                            builder: (_) => const OnboardingScreen()),
                                       );
                                     },
                                     child: const Icon(Icons.arrow_forward,

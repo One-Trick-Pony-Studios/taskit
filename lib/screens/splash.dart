@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 import '../platform/channels.dart';
@@ -17,6 +18,12 @@ class _SplashScreenState extends State<SplashScreen> {
   void dispose() {
     debugPrint('SplashScreen disposed');
     super.dispose();
+  }
+
+  Future<int> _getAndroidSdkInt() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    return androidInfo.version.sdkInt;
   }
 
   @override
@@ -92,57 +99,84 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFDFF8E),
-              Color(0xFFA8D16A),
-              Color(0xFF01A414),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              const Spacer(flex: 2),
-              Column(
+    return FutureBuilder<int>(
+      future: _getAndroidSdkInt(),
+      builder: (context, sdkSnapshot) {
+        if (sdkSnapshot.connectionState == ConnectionState.waiting) {
+          debugPrint('Waiting for SDK version');
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (sdkSnapshot.hasError) {
+          debugPrint('Error getting SDK version: ${sdkSnapshot.error}');
+          return const Center(child: Text('Error loading splash'));
+        }
+
+        final sdkInt = sdkSnapshot.data!;
+        debugPrint('Detected Android SDK: $sdkInt');
+
+        // Define gradient colors based on SDK version
+        final gradientColors = sdkInt > 30
+            ? const <Color>[
+                Color(0x80FDFF8E),
+                Color(0x80A8D16A),
+                Color(0x8001A414),
+              ]
+            : const <Color>[
+                Color(0xFFFDFF8E),
+                Color(0xFFA8D16A),
+                Color(0xFF01A414),
+              ];
+
+        return Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: gradientColors,
+                stops: [0.0, 0.5, 0.9],
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
                 children: [
-                  // SvgPicture.asset(
-                  //   'assets/icons/app_icon.svg',
-                  //   width: 100,
-                  //   height: 100,
-                  //   semanticsLabel: 'TaskIt logo',
-                  // ),
-                  Image.asset(
-                    'assets/icons/app_icon.png',
-                    width: 100,
-                    height: 100,
-                    semanticLabel: 'TaskIt logo',
+                  const Spacer(flex: 2),
+                  Column(
+                    children: [
+                      // SvgPicture.asset(
+                      //   'assets/icons/app_icon.svg',
+                      //   width: 100,
+                      //   height: 100,
+                      //   semanticsLabel: 'TaskIt logo',
+                      // ),
+                      Image.asset(
+                        'assets/icons/app_icon.png',
+                        width: 100,
+                        height: 100,
+                        semanticLabel: 'TaskIt logo',
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'TaskIt',
+                        style: TextStyle(
+                          fontFamily: 'RhodiumLibre',
+                          fontSize: 40,
+                          height: 18 / 40,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+                      const CircularProgressIndicator(),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'TaskIt',
-                    style: TextStyle(
-                      fontFamily: 'RhodiumLibre',
-                      fontSize: 40,
-                      height: 18 / 40,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  const CircularProgressIndicator(),
+                  const Spacer(flex: 3),
                 ],
               ),
-              const Spacer(flex: 3),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
