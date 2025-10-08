@@ -17,7 +17,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, String>> steps = [
     {
       'image': 'assets/onboarding/shareit.png',
-      'caption': 'Option 1\nSelect and copy text that you want to add to your Calendar app via TaskIt'
+      'caption':
+          'Option 1\nSelect and copy text that you want to add to your Calendar app via TaskIt'
     },
     {
       'video': 'assets/onboarding/onboarding_blur_2.mp4',
@@ -25,7 +26,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
     {
       'image': 'assets/onboarding/taskit.png',
-      'caption': 'Option 2\nHighlight text and select "Create Task" from context menu'
+      'caption':
+          'Option 2\nHighlight text and select "Create Task" from context menu'
     },
     {
       'video': 'assets/onboarding/onboarding_blur_1.mp4',
@@ -33,7 +35,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
     {
       'final': 'true',
-      'caption': 'You’re all set!\nReturn to your app and start creating tasks.',
+      'caption':
+          'You’re all set!\nReturn to your app and start creating tasks.',
     },
   ];
 
@@ -62,23 +65,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Column(
                 children: [
                   const TaskItHeader(showTitle: false),
-
                   Expanded(
                     child: PageView.builder(
                       controller: _controller,
                       itemCount: steps.length,
-                      onPageChanged: (index) => setState(() => currentPage = index),
+                      onPageChanged: (index) =>
+                          setState(() => currentPage = index),
                       itemBuilder: (context, index) {
                         final step = steps[index];
 
                         if (step.containsKey('final')) {
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24.0),
                             child: Column(
                               children: [
                                 const SizedBox(height: 48),
                                 Image.asset(
-                                  'assets/homepage/calendar_gif.gif',
+                                  'assets/homepage/calendar_optimized.gif',
                                   width: 150,
                                   height: 150,
                                   fit: BoxFit.contain,
@@ -104,7 +108,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     elevation: 4,
                                   ),
                                   onPressed: _exitOnboarding,
-                                  child: const Icon(Icons.home, color: Colors.green, size: 28),
+                                  child: const Icon(Icons.home,
+                                      color: Colors.green, size: 28),
                                 ),
                                 const Spacer(flex: 1),
                               ],
@@ -115,8 +120,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         final isVideo = step.containsKey('video');
                         final isImage = step.containsKey('image');
                         final captionParts = step['caption']?.split('\n') ?? [];
-                        final title = captionParts.isNotEmpty ? captionParts.first : '';
-                        final body = captionParts.length > 1 ? captionParts.sublist(1).join('\n') : '';
+                        final title =
+                            captionParts.isNotEmpty ? captionParts.first : '';
+                        final body = captionParts.length > 1
+                            ? captionParts.sublist(1).join('\n')
+                            : '';
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -144,21 +152,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     const SizedBox(height: 24),
                                   ],
                                 ),
-
                               if (!isVideo)
                                 SizedBox(
-                                  height: MediaQuery.of(context).size.height * 0.53,
-                                  child: Image.asset(step['image']!, fit: BoxFit.contain),
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.53,
+                                  child: Image.asset(step['image']!,
+                                      fit: BoxFit.contain),
                                 ),
-
                               if (isVideo)
                                 Column(
                                   children: [
                                     SizedBox(
-                                      height: MediaQuery.of(context).size.height * 0.53,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.53,
                                       child: _VideoSlide(
                                         videoPath: step['video']!,
-                                        framePath: 'assets/onboarding/pixel8_front.png',
+                                        framePath:
+                                            'assets/onboarding/pixel8_front.png',
                                       ),
                                     ),
                                     const SizedBox(height: 24),
@@ -185,16 +196,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       },
                     ),
                   ),
-
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0, vertical: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CircleAvatar(
                           backgroundColor: Colors.white,
                           child: IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Colors.green),
+                            icon: const Icon(Icons.arrow_back,
+                                color: Colors.green),
                             onPressed: () {
                               if (currentPage == 0) {
                                 _exitOnboarding();
@@ -223,7 +235,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           backgroundColor: Colors.white,
                           child: IconButton(
                             icon: Icon(
-                              currentPage == steps.length - 1 ? Icons.home : Icons.arrow_forward,
+                              currentPage == steps.length - 1
+                                  ? Icons.home
+                                  : Icons.arrow_forward,
                               color: Colors.green,
                             ),
                             onPressed: () {

@@ -31,7 +31,6 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         calendarPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
@@ -40,16 +39,19 @@ class MainActivity : FlutterFragmentActivity() {
                 redirectToCalendar(pendingCalendarTitle, pendingStartTime, pendingEndTime, pendingFullText)
             } else {
                 Log.w(TAG, "Calendar permission denied via launcher")
-                finish()
+                // Proceed to InfoScreen instead of finishing
             }
             calendarPermissionRequested = false
         }
-
-        handleIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent) // Update the intent for onPostResume to process
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
         handleIntent(intent)
     }
 
@@ -77,7 +79,7 @@ class MainActivity : FlutterFragmentActivity() {
                 redirectToCalendar(title, startTime, endTime, sharedText)
             }
         } else {
-            Log.d(TAG, "No shared text to process, finishing activity")
+            Log.d(TAG, "No shared text to process")
         }
     }
 
@@ -89,7 +91,7 @@ class MainActivity : FlutterFragmentActivity() {
                 if (call.method == "getSharedText") {
                     Log.d(TAG, "getSharedText called, returning: $sharedText")
                     result.success(sharedText)
-                    sharedText = null
+                    // Do not clear sharedText here
                 } else {
                     result.notImplemented()
                 }
@@ -137,7 +139,6 @@ class MainActivity : FlutterFragmentActivity() {
             return
         }
 
-
         val intent = Intent(Intent.ACTION_INSERT).apply {
             data = CalendarContract.Events.CONTENT_URI
             putExtra(CalendarContract.Events.TITLE, title.ifEmpty { "TaskIt Task" })
@@ -154,10 +155,8 @@ class MainActivity : FlutterFragmentActivity() {
             pendingEndTime = null
             pendingFullText = null
             Log.d(TAG, "Successfully launched calendar intent for title: $title")
-            finish()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to launch calendar intent: ${e.message}")
-            finish()
         }
     }
 

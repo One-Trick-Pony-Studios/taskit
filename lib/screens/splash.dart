@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:flutter_svg/flutter_svg.dart';
+
 import '../platform/channels.dart';
 import 'home.dart';
 
@@ -13,33 +14,79 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
+  void dispose() {
+    debugPrint('SplashScreen disposed');
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+    debugPrint('SplashScreen initState');
     _handleSharedText();
+    precacheImage(
+        const AssetImage('assets/homepage/calendar_optimized.gif'), context);
   }
 
   Future<void> _handleSharedText() async {
-    final text = await widget.channels.getSharedText();
-    if (text != null && text.isNotEmpty) {
-      await _createTaskFromText(text);
-    } else {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const InfoScreen()),
-        );
+    debugPrint('Handling shared text');
+    try {
+      final text = await widget.channels
+          .getSharedText()
+          .timeout(const Duration(seconds: 5), onTimeout: () {
+        debugPrint('getSharedText timed out');
+        return null;
+      });
+      debugPrint('Shared text received: $text');
+      if (text != null && text.isNotEmpty) {
+        debugPrint('Processing text: $text');
+        await _createTaskFromText(text);
+      } else {
+        debugPrint('Navigating to InfoScreen, mounted: true');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const InfoScreen()),
+            );
+          } else {
+            debugPrint('Navigating to InfoScreen, mounted: false');
+          }
+        });
       }
+    } catch (e) {
+      debugPrint('Error in _handleSharedText: $e');
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const InfoScreen()),
+          );
+        }
+      });
     }
   }
 
   Future<void> _createTaskFromText(String text) async {
-    await widget.channels.addCalendarEvent(
-      title: text,
-      startTime: DateTime.now(),
-      endTime: DateTime.now().add(const Duration(hours: 1)),
-    );
-    if (mounted && Navigator.canPop(context)) {
-      Navigator.pop(context);
+    try {
+      await widget.channels.addCalendarEvent(
+        title: text,
+        startTime: DateTime.now(),
+        endTime: DateTime.now().add(const Duration(hours: 1)),
+      );
+      debugPrint('Calendar event created successfully');
+    } catch (e) {
+      debugPrint('Failed to create calendar event: $e');
+    }
+
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const InfoScreen()),
+        );
+      });
     }
   }
 
@@ -52,9 +99,9 @@ class _SplashScreenState extends State<SplashScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0x80FDFF8E),
-              Color(0x80A8D16A),
-              Color(0x8001A414),
+              Color(0xFFFDFF8E),
+              Color(0xFFA8D16A),
+              Color(0xFF01A414),
             ],
           ),
         ),
@@ -64,11 +111,17 @@ class _SplashScreenState extends State<SplashScreen> {
               const Spacer(flex: 2),
               Column(
                 children: [
-                  SvgPicture.asset(
-                    'assets/icons/app_icon.svg',
+                  // SvgPicture.asset(
+                  //   'assets/icons/app_icon.svg',
+                  //   width: 100,
+                  //   height: 100,
+                  //   semanticsLabel: 'TaskIt logo',
+                  // ),
+                  Image.asset(
+                    'assets/icons/app_icon.png',
                     width: 100,
                     height: 100,
-                    semanticsLabel: 'TaskIt logo',
+                    semanticLabel: 'TaskIt logo',
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -81,6 +134,8 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 32),
+                  const CircularProgressIndicator(),
                 ],
               ),
               const Spacer(flex: 3),
@@ -90,5 +145,4 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-
 }
