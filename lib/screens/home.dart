@@ -135,7 +135,7 @@ class InfoScreen extends StatelessWidget {
                             // Image/GIF based on Android version
                             if (sdkInt >= minSdk)
                               Image.asset(
-                                'assets/homepage/calendar_gif.gif',
+                                'assets/homepage/calendar_optimized.gif',
                                 width: 150,
                                 height: 150,
                                 fit: BoxFit.contain,
@@ -143,7 +143,7 @@ class InfoScreen extends StatelessWidget {
                               )
                             else
                               Image.asset(
-                                'assets/homepage/static_image.png', // Replace with your static image path
+                                'assets/homepage/calendar.png', // Replace with your static image path
                                 width: 150,
                                 height: 150,
                                 fit: BoxFit.contain,
@@ -206,28 +206,38 @@ class InfoScreen extends StatelessWidget {
                                 ],
                               )
                             else
-                              GestureDetector(
+                              InkWell(
                                 onTap: () async {
-                                  final Uri url = Uri.parse(
-                                      'https://www.youtube.com/watch?v=dQw4w9WgXcQ'); // Dummy YouTube video (Rickroll)
+                                  final Uri url = Uri.parse('https://youtube.com/shorts/Q_Ia-PNysoE');
                                   if (await canLaunchUrl(url)) {
                                     await launchUrl(url);
-                                  } 
-                                  // else {
-                                  //   debugPrint('Could not launch $url');
-                                  // }
+                                  }
                                 },
-                                child: const Text(
-                                  'Watch Tutorial',
-                                  style: TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontSize: 24,
-                                    height: 28 / 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                    decoration: TextDecoration.underline,
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF01A414), // Your logo's green
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Color.fromARGB(25, 0, 0, 0), // ~10% opacity black
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
-                                  textAlign: TextAlign.center,
+                                  child: const Text(
+                                    'Watch Tutorial',
+                                    style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 20,
+                                      height: 1.2,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
                               ),
                             const Spacer(flex: 1),

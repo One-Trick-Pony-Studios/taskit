@@ -1,7 +1,7 @@
 name: taskit
 description: "App to easily create tasks or events from any selected text in other apps."
 publish_to: 'none'
-version: 1.0.0
+version: 1.0.0+3
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -32,7 +32,7 @@ flutter:
   assets:
     - assets/icons/app_icon.png
     - assets/icons/app_icon.svg
-    - assets/homepage/calendar_gif.gif
+    - assets/homepage/calendar.png
     - assets/homepage/calendar_optimized.gif
     - assets/onboarding/pixel8_front.png
     - assets/onboarding/onboarding_blur_1.mp4
