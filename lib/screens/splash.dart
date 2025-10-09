@@ -14,11 +14,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void dispose() {
-    debugPrint('SplashScreen disposed');
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   debugPrint('SplashScreen disposed');
+  //   super.dispose();
+  // }
 
   Future<int> _getAndroidSdkInt() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -29,27 +29,27 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('SplashScreen initState');
+    //debugPrint('SplashScreen initState');
     _handleSharedText();
     precacheImage(
         const AssetImage('assets/homepage/calendar_optimized.gif'), context);
   }
 
   Future<void> _handleSharedText() async {
-    debugPrint('Handling shared text');
+    //debugPrint('Handling shared text');
     try {
       final text = await widget.channels
           .getSharedText()
           .timeout(const Duration(seconds: 5), onTimeout: () {
-        debugPrint('getSharedText timed out');
+        //debugPrint('getSharedText timed out');
         return null;
       });
-      debugPrint('Shared text received: $text');
+      //debugPrint('Shared text received: $text');
       if (text != null && text.isNotEmpty) {
-        debugPrint('Processing text: $text');
+        //debugPrint('Processing text: $text');
         await _createTaskFromText(text);
       } else {
-        debugPrint('Navigating to InfoScreen, mounted: true');
+        //debugPrint('Navigating to InfoScreen, mounted: true');
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             Navigator.pushReplacement(
@@ -57,12 +57,12 @@ class _SplashScreenState extends State<SplashScreen> {
               MaterialPageRoute(builder: (_) => const InfoScreen()),
             );
           } else {
-            debugPrint('Navigating to InfoScreen, mounted: false');
+            //debugPrint('Navigating to InfoScreen, mounted: false');
           }
         });
       }
     } catch (e) {
-      debugPrint('Error in _handleSharedText: $e');
+      //debugPrint('Error in _handleSharedText: $e');
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -82,9 +82,9 @@ class _SplashScreenState extends State<SplashScreen> {
         startTime: DateTime.now(),
         endTime: DateTime.now().add(const Duration(hours: 1)),
       );
-      debugPrint('Calendar event created successfully');
+      //debugPrint('Calendar event created successfully');
     } catch (e) {
-      debugPrint('Failed to create calendar event: $e');
+      //debugPrint('Failed to create calendar event: $e');
     }
 
     if (mounted) {
@@ -103,16 +103,16 @@ class _SplashScreenState extends State<SplashScreen> {
       future: _getAndroidSdkInt(),
       builder: (context, sdkSnapshot) {
         if (sdkSnapshot.connectionState == ConnectionState.waiting) {
-          debugPrint('Waiting for SDK version');
+          //debugPrint('Waiting for SDK version');
           return const Center(child: CircularProgressIndicator());
         }
         if (sdkSnapshot.hasError) {
-          debugPrint('Error getting SDK version: ${sdkSnapshot.error}');
+          //debugPrint('Error getting SDK version: ${sdkSnapshot.error}');
           return const Center(child: Text('Error loading splash'));
         }
 
         final sdkInt = sdkSnapshot.data!;
-        debugPrint('Detected Android SDK: $sdkInt');
+        //debugPrint('Detected Android SDK: $sdkInt');
 
         // Define gradient colors based on SDK version
         final gradientColors = sdkInt > 30

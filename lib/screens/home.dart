@@ -19,17 +19,17 @@ class InfoScreen extends StatelessWidget {
       future: _getAndroidSdkInt(),
       builder: (context, sdkSnapshot) {
         if (sdkSnapshot.connectionState == ConnectionState.waiting) {
-          debugPrint('Waiting for SDK version');
+          //debugPrint('Waiting for SDK version');
           return const Center(child: CircularProgressIndicator());
         }
         if (sdkSnapshot.hasError) {
-          debugPrint('Error getting SDK version: ${sdkSnapshot.error}');
+          //debugPrint('Error getting SDK version: ${sdkSnapshot.error}');
           return const Center(child: Text('Error loading screen'));
         }
 
         final sdkInt = sdkSnapshot.data!;
-        final minSdk = 30; // Changed to 31 to match SplashScreen logic (Android 11+)
-        debugPrint('Detected Android SDK: $sdkInt');
+        final minSdk = 30;
+        //debugPrint('Detected Android SDK: $sdkInt');
 
         return Scaffold(
           body: Column(
@@ -212,9 +212,10 @@ class InfoScreen extends StatelessWidget {
                                       'https://www.youtube.com/watch?v=dQw4w9WgXcQ'); // Dummy YouTube video (Rickroll)
                                   if (await canLaunchUrl(url)) {
                                     await launchUrl(url);
-                                  } else {
-                                    debugPrint('Could not launch $url');
-                                  }
+                                  } 
+                                  // else {
+                                  //   debugPrint('Could not launch $url');
+                                  // }
                                 },
                                 child: const Text(
                                   'Watch Tutorial',

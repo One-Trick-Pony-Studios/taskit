@@ -21,11 +21,3 @@ class TaskitApp extends StatelessWidget {
     );
   }
 }
-
-class NavigationObserver extends NavigatorObserver {
-  @override
-  void didPush(Route route, Route? previousRoute) {
-    debugPrint(
-        'Navigated to: ${route.settings.name}, from: ${previousRoute?.settings.name}');
-  }
-}
