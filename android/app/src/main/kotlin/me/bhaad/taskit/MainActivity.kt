@@ -38,15 +38,9 @@ class MainActivity : FlutterFragmentActivity() {
             if (isGranted) {
                 Log.d(TAG, "Calendar permission granted via launcher")
                 redirectToCalendar(pendingCalendarTitle, pendingStartTime, pendingEndTime, pendingFullText)
-                // Clear pending data after launch
-                pendingCalendarTitle = null
-                pendingStartTime = null
-                pendingEndTime = null
-                pendingFullText = null
-                finish() // Close activity after intent
             } else {
                 Log.w(TAG, "Calendar permission denied via launcher")
-                finish() // Close activity on denial
+                finish()
             }
             calendarPermissionRequested = false
         }
@@ -56,8 +50,6 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Clear sharedText to prevent reprocessing on new intent
-        sharedText = null
         handleIntent(intent)
     }
 
@@ -81,17 +73,11 @@ class MainActivity : FlutterFragmentActivity() {
             pendingStartTime = startTime
             pendingEndTime = endTime
             pendingFullText = sharedText
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
-                == PackageManager.PERMISSION_GRANTED) {
+            window.decorView.post {
                 redirectToCalendar(title, startTime, endTime, sharedText)
-            } else if (!calendarPermissionRequested) {
-                calendarPermissionRequested = true
-                Log.w(TAG, "Calendar permission not granted, requesting...")
-                calendarPermissionLauncher.launch(Manifest.permission.WRITE_CALENDAR)
             }
         } else {
-            Log.d(TAG, "No shared text to process, launch UI")
-            return
+            Log.d(TAG, "No shared text to process, finishing activity")
         }
     }
 
@@ -103,7 +89,7 @@ class MainActivity : FlutterFragmentActivity() {
                 if (call.method == "getSharedText") {
                     Log.d(TAG, "getSharedText called, returning: $sharedText")
                     result.success(sharedText)
-                    sharedText = null // Clear after returning to Flutter
+                    sharedText = null
                 } else {
                     result.notImplemented()
                 }
@@ -132,9 +118,25 @@ class MainActivity : FlutterFragmentActivity() {
     ) {
         if (title.isNullOrBlank()) {
             Log.w(TAG, "Title is null or blank, skipping redirect")
-            finish() // Close if title is invalid
             return
         }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
+            != PackageManager.PERMISSION_GRANTED) {
+            if (!calendarPermissionRequested) {
+                calendarPermissionRequested = true
+                Log.w(TAG, "Calendar permission not granted, requesting...")
+                pendingCalendarTitle = title
+                pendingStartTime = startTime
+                pendingEndTime = endTime
+                pendingFullText = fullText
+                calendarPermissionLauncher.launch(Manifest.permission.WRITE_CALENDAR)
+            } else {
+                Log.w(TAG, "Calendar permission request already in progress")
+            }
+            return
+        }
+
 
         val intent = Intent(Intent.ACTION_INSERT).apply {
             data = CalendarContract.Events.CONTENT_URI
@@ -147,11 +149,15 @@ class MainActivity : FlutterFragmentActivity() {
 
         try {
             startActivity(intent)
+            pendingCalendarTitle = null
+            pendingStartTime = null
+            pendingEndTime = null
+            pendingFullText = null
             Log.d(TAG, "Successfully launched calendar intent for title: $title")
-            finish() // Close activity after intent launch
+            finish()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to launch calendar intent: ${e.message}")
-            finish() // Close on failure
+            finish()
         }
     }
 
