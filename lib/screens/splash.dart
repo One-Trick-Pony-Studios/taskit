@@ -14,25 +14,17 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // @override
-  // void dispose() {
-  //   debugPrint('SplashScreen disposed');
-  //   super.dispose();
-  // }
-
-  Future<int> _getAndroidSdkInt() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    return androidInfo.version.sdkInt;
-  }
-
   @override
   void initState() {
     super.initState();
     //debugPrint('SplashScreen initState');
     _handleSharedText();
-    precacheImage(
-        const AssetImage('assets/homepage/calendar_optimized.gif'), context);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage('assets/homepage/calendar_optimized.gif'), context);
   }
 
   Future<void> _handleSharedText() async {
@@ -115,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> {
         //debugPrint('Detected Android SDK: $sdkInt');
 
         // Define gradient colors based on SDK version
-        final gradientColors = sdkInt > 30
+        final gradientColors = sdkInt >= 30
             ? const <Color>[
                 Color(0x80FDFF8E),
                 Color(0x80A8D16A),
@@ -178,5 +170,11 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       },
     );
+  }
+
+  Future<int> _getAndroidSdkInt() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    return androidInfo.version.sdkInt;
   }
 }
