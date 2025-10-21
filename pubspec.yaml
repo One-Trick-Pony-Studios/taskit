@@ -1,7 +1,7 @@
 name: taskit
 description: "App to easily create tasks or events from any selected text in other apps."
 publish_to: 'none'
-version: 1.0.0+3
+version: 1.0.0+5
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -12,11 +12,11 @@ dependencies:
   receive_sharing_intent:
     git:
       url: https://github.com/KasemJaffer/receive_sharing_intent
-  smooth_page_indicator: ^1.1.0
-  flutter_svg: ^2.0.7 
-  video_player: ^2.7.2 
-  device_info_plus: ^12.1.0
-  url_launcher: ^6.3.0
+  smooth_page_indicator: ^1.2.0
+  flutter_svg: ^2.2.1 
+  video_player: ^2.10.0 
+  device_info_plus: ^12.2.0
+  url_launcher: ^6.3.2
 
 
 dev_dependencies:

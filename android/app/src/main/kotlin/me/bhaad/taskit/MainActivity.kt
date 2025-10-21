@@ -7,6 +7,7 @@ import android.util.Log
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -44,6 +45,8 @@ class MainActivity : FlutterFragmentActivity() {
             }
             calendarPermissionRequested = false
         }
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         handleIntent(intent)
     }
