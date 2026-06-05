@@ -32,13 +32,13 @@ class MockChannels extends _i1.Mock implements _i2.Channels {
   }
 
   @override
-  _i3.Future<String?> getSharedText() => (super.noSuchMethod(
+  _i3.Future<Map<String, dynamic>?> getSharedText() => (super.noSuchMethod(
         Invocation.method(
           #getSharedText,
           [],
         ),
-        returnValue: _i3.Future<String?>.value(),
-      ) as _i3.Future<String?>);
+        returnValue: _i3.Future<Map<String, dynamic>?>.value(),
+      ) as _i3.Future<Map<String, dynamic>?>);
 
   @override
   _i3.Future<void> addCalendarEvent({
@@ -59,4 +59,13 @@ class MockChannels extends _i1.Mock implements _i2.Channels {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<bool> requestAddQuickSettingsTile() => (super.noSuchMethod(
+        Invocation.method(
+          #requestAddQuickSettingsTile,
+          [],
+        ),
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
 }

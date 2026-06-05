@@ -2,12 +2,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 
 abstract class Channels {
-  Future<String?> getSharedText();
+  Future<Map<String, dynamic>?> getSharedText();
   Future<void> addCalendarEvent({
     required String title,
     DateTime? startTime,
     DateTime? endTime,
   });
+  Future<bool> requestAddQuickSettingsTile();
 }
 
 class MethodChannelChannels implements Channels {
@@ -15,14 +16,14 @@ class MethodChannelChannels implements Channels {
   static const MethodChannel _calendarChannel = MethodChannel('app.channel.calendar');
 
   @override
-  Future<String?> getSharedText() async {
+  Future<Map<String, dynamic>?> getSharedText() async {
     try {
       final sharedData = await _processTextChannel.invokeMethod('getSharedText');
-      if (sharedData is String) {
+      if (sharedData is Map) {
         if (kDebugMode) {
           print('Shared text retrieved: $sharedData');
         }
-        return sharedData;
+        return Map<String, dynamic>.from(sharedData);
       }
       return null;
     } catch (e) {
@@ -40,5 +41,18 @@ class MethodChannelChannels implements Channels {
       'startTime': startTime?.toUtc().millisecondsSinceEpoch ?? DateTime.now().toUtc().millisecondsSinceEpoch,
       'endTime': endTime?.toUtc().millisecondsSinceEpoch ?? DateTime.now().toUtc().add(const Duration(hours: 1)).millisecondsSinceEpoch,
     });
-  }  
+  }
+
+  @override
+  Future<bool> requestAddQuickSettingsTile() async {
+    try {
+      final bool? success = await _calendarChannel.invokeMethod('requestAddTile');
+      return success ?? false;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error requesting Quick Settings Tile: $e');
+      }
+      return false;
+    }
+  }
 }

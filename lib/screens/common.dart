@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_svg/flutter_svg.dart';
 
 class TaskItHeader extends StatelessWidget {
   final bool showTitle;
@@ -14,12 +13,6 @@ class TaskItHeader extends StatelessWidget {
         padding: const EdgeInsets.only(top: 24.0, bottom: 16.0),
         child: Column(
           children: [
-            // SvgPicture.asset(
-            //   'assets/icons/app_icon.svg',
-            //   width: 100,
-            //   height: 100,
-            //   semanticsLabel: 'TaskIt logo',
-            // ),
             Image.asset(
               'assets/icons/app_icon.png',
               width: 100,

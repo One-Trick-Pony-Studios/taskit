@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:video_player/video_player.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'common.dart';
+import '../platform/channels.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -13,6 +15,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
   int currentPage = 0;
+  int _sdkInt = 0;
 
   final List<Map<String, String>> steps = [
     {
@@ -39,6 +42,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           'You’re all set!\nReturn to your app and start creating tasks.',
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSdkInt();
+  }
+
+  Future<void> _fetchSdkInt() async {
+    try {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      setState(() {
+        _sdkInt = androidInfo.version.sdkInt;
+      });
+    } catch (_) {}
+  }
 
   void _exitOnboarding() {
     Navigator.pop(context);
@@ -80,7 +99,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 const EdgeInsets.symmetric(horizontal: 24.0),
                             child: Column(
                               children: [
-                                const SizedBox(height: 48),
+                                const SizedBox(height: 36),
                                 Image.asset(
                                   'assets/homepage/calendar_optimized.gif',
                                   width: 150,
@@ -88,7 +107,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   fit: BoxFit.contain,
                                   filterQuality: FilterQuality.high,
                                 ),
-                                const SizedBox(height: 50),
+                                const SizedBox(height: 36),
                                 const Text(
                                   'That’s it!',
                                   style: TextStyle(
@@ -99,7 +118,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 36),
+                                const SizedBox(height: 24),
+                                if (_sdkInt >= 33) ...[
+                                  ElevatedButton.icon(
+                                    icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                                    label: const Text(
+                                      "Add Quick Settings Tile",
+                                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      elevation: 3,
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(24),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      final Channels channels = MethodChannelChannels();
+                                      final success = await channels.requestAddQuickSettingsTile();
+                                      if (success && mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text("Request sent. Tap 'Add' on the system dialog.")),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     shape: const CircleBorder(),

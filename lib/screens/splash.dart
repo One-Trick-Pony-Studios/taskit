@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-//import 'package:flutter_svg/flutter_svg.dart';
 
 import '../platform/channels.dart';
 import 'home.dart';
@@ -17,7 +16,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    //debugPrint('SplashScreen initState');
     _handleSharedText();
   }
 
@@ -28,65 +26,56 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _handleSharedText() async {
-    //debugPrint('Handling shared text');
     try {
-      final text = await widget.channels
+      final data = await widget.channels
           .getSharedText()
           .timeout(const Duration(seconds: 5), onTimeout: () {
-        //debugPrint('getSharedText timed out');
-        return null;
+        return <String, dynamic>{};
       });
-      //debugPrint('Shared text received: $text');
-      if (text != null && text.isNotEmpty) {
-        //debugPrint('Processing text: $text');
-        await _createTaskFromText(text);
+      if (data != null && data.isNotEmpty) {
+        await _createTaskFromSharedData(data);
       } else {
-        //debugPrint('Navigating to InfoScreen, mounted: true');
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const InfoScreen()),
-            );
-          } else {
-            //debugPrint('Navigating to InfoScreen, mounted: false');
-          }
-        });
+        _navigateToInfoScreen();
       }
     } catch (e) {
-      //debugPrint('Error in _handleSharedText: $e');
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const InfoScreen()),
-          );
-        }
-      });
+      _navigateToInfoScreen();
     }
   }
 
-  Future<void> _createTaskFromText(String text) async {
-    try {
-      await widget.channels.addCalendarEvent(
-        title: text,
-        startTime: DateTime.now(),
-        endTime: DateTime.now().add(const Duration(hours: 1)),
-      );
-      //debugPrint('Calendar event created successfully');
-    } catch (e) {
-      //debugPrint('Failed to create calendar event: $e');
-    }
-
-    if (mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+  void _navigateToInfoScreen() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const InfoScreen()),
         );
-      });
+      }
+    });
+  }
+
+  Future<void> _createTaskFromSharedData(Map<String, dynamic> data) async {
+    try {
+      final String title = data['title'] ?? data['text'] ?? 'TaskIt Task';
+      final int? startMs = data['startTime'];
+      final int? endMs = data['endTime'];
+
+      final DateTime startTime = startMs != null
+          ? DateTime.fromMillisecondsSinceEpoch(startMs, isUtc: true)
+          : DateTime.now();
+      final DateTime endTime = endMs != null
+          ? DateTime.fromMillisecondsSinceEpoch(endMs, isUtc: true)
+          : DateTime.now().add(const Duration(hours: 1));
+
+      await widget.channels.addCalendarEvent(
+        title: title,
+        startTime: startTime,
+        endTime: endTime,
+      );
+    } catch (e) {
+      // Ignored / handled natively
     }
+
+    _navigateToInfoScreen();
   }
 
   @override
@@ -95,16 +84,13 @@ class _SplashScreenState extends State<SplashScreen> {
       future: _getAndroidSdkInt(),
       builder: (context, sdkSnapshot) {
         if (sdkSnapshot.connectionState == ConnectionState.waiting) {
-          //debugPrint('Waiting for SDK version');
           return const Center(child: CircularProgressIndicator());
         }
         if (sdkSnapshot.hasError) {
-          //debugPrint('Error getting SDK version: ${sdkSnapshot.error}');
           return const Center(child: Text('Error loading splash'));
         }
 
         final sdkInt = sdkSnapshot.data!;
-        //debugPrint('Detected Android SDK: $sdkInt');
 
         // Define gradient colors based on SDK version
         final gradientColors = sdkInt >= 30
@@ -135,12 +121,6 @@ class _SplashScreenState extends State<SplashScreen> {
                   const Spacer(flex: 2),
                   Column(
                     children: [
-                      // SvgPicture.asset(
-                      //   'assets/icons/app_icon.svg',
-                      //   width: 100,
-                      //   height: 100,
-                      //   semanticsLabel: 'TaskIt logo',
-                      // ),
                       Image.asset(
                         'assets/icons/app_icon.png',
                         width: 100,
@@ -173,8 +153,14 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<int> _getAndroidSdkInt() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    return androidInfo.version.sdkInt;
+    try {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.version.sdkInt;
+    } catch (e, stack) {
+      print('DEVICE INFO ERROR: $e');
+      print('STACK: $stack');
+      rethrow;
+    }
   }
 }
