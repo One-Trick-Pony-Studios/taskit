@@ -10,6 +10,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 
 class ClipboardActivity : Activity() {
+    private var hasProcessed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -20,7 +22,18 @@ class ClipboardActivity : Activity() {
             finish()
             return
         }
+    }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        if (hasFocus && !hasProcessed) {
+            hasProcessed = true
+            readFromClipboardAndInsertEvent()
+        }
+    }
+
+    private fun readFromClipboardAndInsertEvent() {
         // Read clipboard text
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = clipboard.primaryClip
@@ -42,3 +55,4 @@ class ClipboardActivity : Activity() {
         finish()
     }
 }
+

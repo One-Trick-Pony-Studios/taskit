@@ -18,6 +18,7 @@ void main() {
 
     setUp(() {
       mockChannels = MockChannels();
+      when(mockChannels.checkAndRequestPermission()).thenAnswer((_) async => true);
 
       final mockAndroidInfo = {
         'version': {
@@ -136,7 +137,7 @@ void main() {
     });
 
     testWidgets('Handles no shared text', (WidgetTester tester) async {
-      when(mockChannels.getSharedText()).thenAnswer((_) async => null);
+      when(mockChannels.getSharedText()).thenAnswer((_) => Future<Map<String, dynamic>?>.value(null));
 
       await tester.pumpWidget(MaterialApp(
         home: SplashScreen(channels: mockChannels),
@@ -148,6 +149,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(mockChannels.getSharedText()).called(1);
+      verify(mockChannels.checkAndRequestPermission()).called(1);
       verifyNever(mockChannels.addCalendarEvent(
         title: anyNamed('title'),
         startTime: anyNamed('startTime'),

@@ -2,10 +2,10 @@ import com.android.build.api.dsl.ApplicationExtension
 import java.util.*
 import java.util.Properties
 import java.io.FileInputStream
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -26,9 +26,7 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+
 
     defaultConfig {
         applicationId = "me.bhaad.taskit"
@@ -110,4 +108,10 @@ dependencies {
 
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
 }

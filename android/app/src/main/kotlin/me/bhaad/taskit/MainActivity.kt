@@ -32,6 +32,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var pendingFullText: String? = null
 
     private lateinit var calendarPermissionLauncher: ActivityResultLauncher<String>
+    private var permissionResult: MethodChannel.Result? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +42,18 @@ class MainActivity : FlutterFragmentActivity() {
         ) { isGranted ->
             if (isGranted) {
                 Log.d(TAG, "Calendar permission granted via launcher")
-                redirectToCalendar(pendingCalendarTitle, pendingStartTime, pendingEndTime, pendingFullText)
+                if (pendingCalendarTitle != null) {
+                    redirectToCalendar(pendingCalendarTitle, pendingStartTime, pendingEndTime, pendingFullText)
+                }
+                permissionResult?.success(true)
             } else {
                 Log.w(TAG, "Calendar permission denied via launcher")
-                finish()
+                permissionResult?.success(false)
+                if (pendingCalendarTitle != null) {
+                    finish()
+                }
             }
+            permissionResult = null
             calendarPermissionRequested = false
         }
 
@@ -126,6 +134,12 @@ class MainActivity : FlutterFragmentActivity() {
                         requestAddTileService()
                         result.success(true)
                     }
+                    "checkAndRequestPermission" -> {
+                        val granted = checkAndRequestCalendarPermission(result)
+                        if (granted) {
+                            result.success(true)
+                        }
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -184,5 +198,21 @@ class MainActivity : FlutterFragmentActivity() {
                 Log.d("TaskItTile", "Tile addition request status code: $statusCode")
             }
         }
+    }
+
+    private fun checkAndRequestCalendarPermission(result: MethodChannel.Result): Boolean {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
+            == PackageManager.PERMISSION_GRANTED) {
+            return true
+        }
+
+        if (!calendarPermissionRequested) {
+            calendarPermissionRequested = true
+            permissionResult = result
+            calendarPermissionLauncher.launch(Manifest.permission.WRITE_CALENDAR)
+        } else {
+            result.error("PERMISSION_REQUEST_IN_PROGRESS", "Calendar permission request already in progress", null)
+        }
+        return false
     }
 }

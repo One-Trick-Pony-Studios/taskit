@@ -35,6 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (data != null && data.isNotEmpty) {
         await _createTaskFromSharedData(data);
       } else {
+        await widget.channels.checkAndRequestPermission();
         _navigateToInfoScreen();
       }
     } catch (e) {

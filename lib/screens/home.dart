@@ -3,6 +3,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'common.dart';
 import 'onboarding.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../platform/channels.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -203,6 +204,33 @@ class InfoScreen extends StatelessWidget {
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
+                                  if (sdkInt >= 33) ...[
+                                    const SizedBox(height: 24),
+                                    ElevatedButton.icon(
+                                      icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                                      label: const Text(
+                                        "Add Quick Settings Tile",
+                                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        elevation: 3,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(24),
+                                        ),
+                                      ),
+                                      onPressed: () async {
+                                        final Channels channels = MethodChannelChannels();
+                                        final success = await channels.requestAddQuickSettingsTile();
+                                        if (success && context.mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text("Request sent. Tap 'Add' on the system dialog.")),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ],
                                 ],
                               )
                             else

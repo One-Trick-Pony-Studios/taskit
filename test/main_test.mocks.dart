@@ -68,4 +68,13 @@ class MockChannels extends _i1.Mock implements _i2.Channels {
         ),
         returnValue: _i3.Future<bool>.value(false),
       ) as _i3.Future<bool>);
+
+  @override
+  _i3.Future<bool> checkAndRequestPermission() => (super.noSuchMethod(
+        Invocation.method(
+          #checkAndRequestPermission,
+          [],
+        ),
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
 }

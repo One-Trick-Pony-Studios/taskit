@@ -9,6 +9,7 @@ abstract class Channels {
     DateTime? endTime,
   });
   Future<bool> requestAddQuickSettingsTile();
+  Future<bool> checkAndRequestPermission();
 }
 
 class MethodChannelChannels implements Channels {
@@ -51,6 +52,19 @@ class MethodChannelChannels implements Channels {
     } catch (e) {
       if (kDebugMode) {
         print('Error requesting Quick Settings Tile: $e');
+      }
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> checkAndRequestPermission() async {
+    try {
+      final bool? success = await _calendarChannel.invokeMethod('checkAndRequestPermission');
+      return success ?? false;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking/requesting calendar permission: $e');
       }
       return false;
     }
