@@ -61,6 +61,17 @@ class MockChannels extends _i1.Mock implements _i2.Channels {
       ) as _i3.Future<void>);
 
   @override
+  _i3.Future<void> addCalendarEventFromText(String? text) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #addCalendarEventFromText,
+          [text],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
   _i3.Future<bool> requestAddQuickSettingsTile() => (super.noSuchMethod(
         Invocation.method(
           #requestAddQuickSettingsTile,

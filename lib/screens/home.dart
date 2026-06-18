@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'common.dart';
 import 'onboarding.dart';
@@ -6,7 +7,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../platform/channels.dart';
 
 class InfoScreen extends StatelessWidget {
-  const InfoScreen({super.key});
+  final Channels channels;
+
+  InfoScreen({super.key, Channels? channels})
+      : channels = channels ?? MethodChannelChannels();
 
   Future<int> _getAndroidSdkInt() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -172,6 +176,45 @@ class InfoScreen extends StatelessWidget {
                             ),
 
                             const Spacer(flex: 2),
+
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.assignment_turned_in_rounded, color: Colors.white, size: 22),
+                              label: const Text(
+                                "Create from Clipboard",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF01A414), // Brand green
+                                foregroundColor: Colors.white,
+                                elevation: 4,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(28),
+                                ),
+                              ),
+                              onPressed: () async {
+                                final data = await Clipboard.getData(Clipboard.kTextPlain);
+                                final text = data?.text;
+                                if (text == null || text.trim().isEmpty) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Clipboard is empty or contains no text.'),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                  return;
+                                }
+                                await channels.addCalendarEventFromText(text.trim());
+                              },
+                            ),
+
+                            const Spacer(flex: 2),
                             // Conditional action based on Android version
                             if (sdkInt >= minSdk)
                               Column(
@@ -221,7 +264,6 @@ class InfoScreen extends StatelessWidget {
                                         ),
                                       ),
                                       onPressed: () async {
-                                        final Channels channels = MethodChannelChannels();
                                         final success = await channels.requestAddQuickSettingsTile();
                                         if (success && context.mounted) {
                                           ScaffoldMessenger.of(context).showSnackBar(

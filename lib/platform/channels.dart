@@ -8,6 +8,7 @@ abstract class Channels {
     DateTime? startTime,
     DateTime? endTime,
   });
+  Future<void> addCalendarEventFromText(String text);
   Future<bool> requestAddQuickSettingsTile();
   Future<bool> checkAndRequestPermission();
 }
@@ -41,6 +42,13 @@ class MethodChannelChannels implements Channels {
       'title': title,
       'startTime': startTime?.toUtc().millisecondsSinceEpoch ?? DateTime.now().toUtc().millisecondsSinceEpoch,
       'endTime': endTime?.toUtc().millisecondsSinceEpoch ?? DateTime.now().toUtc().add(const Duration(hours: 1)).millisecondsSinceEpoch,
+    });
+  }
+
+  @override
+  Future<void> addCalendarEventFromText(String text) async {
+    await _calendarChannel.invokeMethod('addCalendarEventFromText', {
+      'text': text,
     });
   }
 

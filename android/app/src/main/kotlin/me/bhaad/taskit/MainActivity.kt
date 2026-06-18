@@ -130,6 +130,14 @@ class MainActivity : FlutterFragmentActivity() {
                         redirectToCalendar(title, startTime, endTime, sharedText)
                         result.success(null)
                     }
+                    "addCalendarEventFromText" -> {
+                        val text = call.argument<String>("text")
+                        if (!text.isNullOrBlank()) {
+                            val (title, startTime, endTime) = CalendarHelper.parseTextForEventDetails(text)
+                            redirectToCalendar(title, startTime, endTime, text)
+                        }
+                        result.success(null)
+                    }
                     "requestAddTile" -> {
                         requestAddTileService()
                         result.success(true)

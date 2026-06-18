@@ -5,6 +5,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:taskit/platform/channels.dart';
 import 'package:taskit/screens/splash.dart';
+import 'package:taskit/screens/home.dart';
 
 // Generated mock file
 import 'main_test.mocks.dart';
@@ -155,6 +156,39 @@ void main() {
         startTime: anyNamed('startTime'),
         endTime: anyNamed('endTime'),
       ));
+    });
+
+    testWidgets('Renders Create from Clipboard button and handles tap', (WidgetTester tester) async {
+      when(mockChannels.addCalendarEventFromText(any)).thenAnswer((_) async {});
+
+      await Clipboard.setData(const ClipboardData(text: 'Meeting at 3pm tomorrow'));
+
+      await tester.pumpWidget(MaterialApp(
+        home: InfoScreen(channels: mockChannels),
+      ));
+
+      final buttonFinder = find.widgetWithText(ElevatedButton, 'Create from Clipboard');
+      expect(buttonFinder, findsOneWidget);
+
+      await tester.tap(buttonFinder);
+      await tester.pump();
+
+      verify(mockChannels.addCalendarEventFromText('Meeting at 3pm tomorrow')).called(1);
+    });
+
+    testWidgets('Shows SnackBar when clipboard is empty', (WidgetTester tester) async {
+      await Clipboard.setData(const ClipboardData(text: ''));
+
+      await tester.pumpWidget(MaterialApp(
+        home: InfoScreen(channels: mockChannels),
+      ));
+
+      final buttonFinder = find.widgetWithText(ElevatedButton, 'Create from Clipboard');
+      await tester.tap(buttonFinder);
+      await tester.pump();
+
+      expect(find.text('Clipboard is empty or contains no text.'), findsOneWidget);
+      verifyNever(mockChannels.addCalendarEventFromText(any));
     });
   });
 }
