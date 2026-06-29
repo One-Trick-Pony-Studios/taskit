@@ -85,7 +85,7 @@ class AppLocalizationsHi extends AppLocalizations {
       'सलाह: इसे आसानी से ढूंढने के लिए Quick Settings की पहली स्क्रीन पर रखें।';
 
   @override
-  String get copyTextTitle => 'तरीका 1: टेक्स्ट कॉपी करें';
+  String get copyTextTitle => 'टेक्स्ट कॉपी करें';
 
   @override
   String get copyTextDescription =>
@@ -120,7 +120,7 @@ class AppLocalizationsHi extends AppLocalizations {
       'सिस्टम Share Sheet का इस्तेमाल करके सीधे TaskIt पर टेक्स्ट भेजें (उन ऐप्स के लिए जहाँ कॉपी करना बंद या धीमा है)।';
 
   @override
-  String get shareTextTitle => 'तरीका 2: टेक्स्ट शेयर करें';
+  String get shareTextTitle => 'टेक्स्ट शेयर करें';
 
   @override
   String get shareTextDescription => 'सबसे पहले टेक्स्ट सेलेक्ट और कॉपी करें।';
@@ -140,7 +140,7 @@ class AppLocalizationsHi extends AppLocalizations {
       'बिना ऐप छोड़े, टेक्स्ट सेलेक्ट करते ही सामने आने वाले मेनू से डायरेक्ट एक क्लिक में टास्क बनाएं।';
 
   @override
-  String get contextMenuTitle => 'तरीका 3: Context Menu';
+  String get contextMenuTitle => 'Context Menu';
 
   @override
   String get contextMenuDescription =>
@@ -154,7 +154,7 @@ class AppLocalizationsHi extends AppLocalizations {
       'कॉपी किए गए टेक्स्ट से टास्क बनाने के लिए सीधे TaskIt ऐप खोलें।';
 
   @override
-  String get appLaunchTitle => 'तरीका 4: ऐप खोलें';
+  String get appLaunchTitle => 'ऐप खोलें';
 
   @override
   String get appLaunchDescription => 'सबसे पहले टेक्स्ट सेलेक्ट और कॉपी करें।';

@@ -84,7 +84,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Tip: Ponlo en la primera pantalla de ajustes rápidos para tenerlo más a mano.';
 
   @override
-  String get copyTextTitle => 'Método 1: Copiar texto';
+  String get copyTextTitle => 'Copiar texto';
 
   @override
   String get copyTextDescription =>
@@ -119,7 +119,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Envía texto directo a TaskIt usando el menú de Compartir de tu celular, ideal para apps donde no se puede copiar.';
 
   @override
-  String get shareTextTitle => 'Método 2: Compartir texto';
+  String get shareTextTitle => 'Compartir texto';
 
   @override
   String get shareTextDescription =>
@@ -140,7 +140,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Crea una tarea en un solo paso directamente desde el menú que sale al seleccionar texto, sin salir de tu app.';
 
   @override
-  String get contextMenuTitle => 'Método 3: Menú Contextual';
+  String get contextMenuTitle => 'Menú Contextual';
 
   @override
   String get contextMenuDescription =>
@@ -154,7 +154,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Abre directamente la app de TaskIt para crear tareas de forma manual con lo que tengas en el portapapeles.';
 
   @override
-  String get appLaunchTitle => 'Método 4: Abrir la App';
+  String get appLaunchTitle => 'Abrir la App';
 
   @override
   String get appLaunchDescription =>

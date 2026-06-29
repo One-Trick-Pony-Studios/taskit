@@ -84,7 +84,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tip: Put it on the first screen of quick settings for ease of access.';
 
   @override
-  String get copyTextTitle => 'Method 1: Copy Text';
+  String get copyTextTitle => 'Copy Text';
 
   @override
   String get copyTextDescription =>
@@ -119,7 +119,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Send text directly to TaskIt using the system Share Sheet, perfect for apps where copying to clipboard is restricted or slow.';
 
   @override
-  String get shareTextTitle => 'Method 2: Share Text';
+  String get shareTextTitle => 'Share Text';
 
   @override
   String get shareTextDescription =>
@@ -140,7 +140,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create a task in a single action directly from the text selection context menu without leaving your active app.';
 
   @override
-  String get contextMenuTitle => 'Method 3: Context Menu';
+  String get contextMenuTitle => 'Context Menu';
 
   @override
   String get contextMenuDescription =>
@@ -154,7 +154,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Open the TaskIt app directly to create tasks manually from your copied clipboard contents.';
 
   @override
-  String get appLaunchTitle => 'Method 4: App Launch';
+  String get appLaunchTitle => 'App Launch';
 
   @override
   String get appLaunchDescription =>

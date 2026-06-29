@@ -85,7 +85,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Tipp: Platziere die Kachel auf der ersten Seite der Quick Settings, um sie sofort griffbereit zu haben.';
 
   @override
-  String get copyTextTitle => 'Methode 1: Text kopieren';
+  String get copyTextTitle => 'Text kopieren';
 
   @override
   String get copyTextDescription =>
@@ -120,7 +120,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Sende Text direkt über das System-Teilen-Menü an TaskIt – perfekt für Apps, in denen du keinen Text kopieren kannst.';
 
   @override
-  String get shareTextTitle => 'Methode 2: Text teilen';
+  String get shareTextTitle => 'Text teilen';
 
   @override
   String get shareTextDescription =>
@@ -141,7 +141,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Erstelle eine Aufgabe direkt über das Textauswahl-Kontextmenü, ohne deine aktuelle App zu verlassen.';
 
   @override
-  String get contextMenuTitle => 'Methode 3: Kontextmenü';
+  String get contextMenuTitle => 'Kontextmenü';
 
   @override
   String get contextMenuDescription =>
@@ -155,7 +155,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Öffne die TaskIt-App direkt, um Aufgaben manuell aus deiner Zwischenablage zu erstellen.';
 
   @override
-  String get appLaunchTitle => 'Methode 4: App öffnen';
+  String get appLaunchTitle => 'App öffnen';
 
   @override
   String get appLaunchDescription =>

@@ -245,7 +245,7 @@ abstract class AppLocalizations {
   /// No description provided for @copyTextTitle.
   ///
   /// In en, this message translates to:
-  /// **'Method 1: Copy Text'**
+  /// **'Copy Text'**
   String get copyTextTitle;
 
   /// No description provided for @copyTextDescription.
@@ -305,7 +305,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareTextTitle.
   ///
   /// In en, this message translates to:
-  /// **'Method 2: Share Text'**
+  /// **'Share Text'**
   String get shareTextTitle;
 
   /// No description provided for @shareTextDescription.
@@ -341,7 +341,7 @@ abstract class AppLocalizations {
   /// No description provided for @contextMenuTitle.
   ///
   /// In en, this message translates to:
-  /// **'Method 3: Context Menu'**
+  /// **'Context Menu'**
   String get contextMenuTitle;
 
   /// No description provided for @contextMenuDescription.
@@ -365,7 +365,7 @@ abstract class AppLocalizations {
   /// No description provided for @appLaunchTitle.
   ///
   /// In en, this message translates to:
-  /// **'Method 4: App Launch'**
+  /// **'App Launch'**
   String get appLaunchTitle;
 
   /// No description provided for @appLaunchDescription.
