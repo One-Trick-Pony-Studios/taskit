@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -8,9 +9,29 @@ import 'package:taskit/platform/channels.dart';
 import 'package:taskit/screens/splash.dart';
 import 'package:taskit/screens/home.dart';
 import 'package:taskit/screens/onboarding.dart';
+import 'package:taskit/l10n/app_localizations.dart';
 
 // Generated mock file
 import 'main_test.mocks.dart';
+
+Widget buildTestWidget(Widget child) {
+  return MaterialApp(
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: const [
+      Locale('en'),
+      Locale('es'),
+      Locale('hi'),
+      Locale('de'),
+      Locale('fr'),
+    ],
+    home: child,
+  );
+}
 
 @GenerateMocks([Channels])
 void main() {
@@ -108,8 +129,8 @@ void main() {
         endTime: anyNamed('endTime'),
       )).thenAnswer((_) async {});
 
-      await tester.pumpWidget(MaterialApp(
-        home: SplashScreen(channels: mockChannels),
+      await tester.pumpWidget(buildTestWidget(
+        SplashScreen(channels: mockChannels),
       ));
 
       await tester.pump(); // Let FutureBuilder complete and rebuild
@@ -140,8 +161,8 @@ void main() {
         endTime: anyNamed('endTime'),
       )).thenAnswer((_) async {});
 
-      await tester.pumpWidget(MaterialApp(
-        home: SplashScreen(channels: mockChannels),
+      await tester.pumpWidget(buildTestWidget(
+        SplashScreen(channels: mockChannels),
       ));
 
       await tester.pump(); // Let FutureBuilder complete and rebuild
@@ -160,8 +181,8 @@ void main() {
     testWidgets('Handles no shared text', (WidgetTester tester) async {
       when(mockChannels.getSharedText()).thenAnswer((_) => Future<Map<String, dynamic>?>.value(null));
 
-      await tester.pumpWidget(MaterialApp(
-        home: SplashScreen(channels: mockChannels),
+      await tester.pumpWidget(buildTestWidget(
+        SplashScreen(channels: mockChannels),
       ));
 
       await tester.pump(); // Let FutureBuilder complete and rebuild
@@ -183,11 +204,12 @@ void main() {
 
       await Clipboard.setData(const ClipboardData(text: 'Meeting at 3pm tomorrow'));
 
-      await tester.pumpWidget(MaterialApp(
-        home: InfoScreen(channels: mockChannels),
+      await tester.pumpWidget(buildTestWidget(
+        InfoScreen(channels: mockChannels),
       ));
       await tester.pump();
 
+      // Look for localized button label
       final buttonFinder = find.widgetWithText(ElevatedButton, 'Create from Clipboard');
       expect(buttonFinder, findsOneWidget);
 
@@ -200,8 +222,8 @@ void main() {
     testWidgets('Shows SnackBar when clipboard is empty', (WidgetTester tester) async {
       await Clipboard.setData(const ClipboardData(text: ''));
 
-      await tester.pumpWidget(MaterialApp(
-        home: InfoScreen(channels: mockChannels),
+      await tester.pumpWidget(buildTestWidget(
+        InfoScreen(channels: mockChannels),
       ));
       await tester.pump();
 
@@ -224,8 +246,8 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      await tester.pumpWidget(MaterialApp(
-        home: InfoScreen(channels: mockChannels, isDirectLaunch: true),
+      await tester.pumpWidget(buildTestWidget(
+        InfoScreen(channels: mockChannels, isDirectLaunch: true),
       ));
 
       // InfoScreen builds and schedules push of OnboardingScreen
@@ -233,7 +255,7 @@ void main() {
       // Handle the navigation transition
       await tester.pumpAndSettle();
 
-      // Verify OnboardingScreen is shown (by finding the 'Skip' text button)
+      // Verify OnboardingScreen is shown (by finding the localized 'Skip' button text)
       expect(find.text('Skip'), findsOneWidget);
     });
 
@@ -248,8 +270,8 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
-      await tester.pumpWidget(MaterialApp(
-        home: OnboardingScreen(channels: mockChannels),
+      await tester.pumpWidget(buildTestWidget(
+        OnboardingScreen(channels: mockChannels),
       ));
 
       // The first page is "Get Started" overview slide (text-only)

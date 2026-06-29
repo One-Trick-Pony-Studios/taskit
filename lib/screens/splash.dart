@@ -161,8 +161,8 @@ class _SplashScreenState extends State<SplashScreen> {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       return androidInfo.version.sdkInt;
     } catch (e, stack) {
-      print('DEVICE INFO ERROR: $e');
-      print('STACK: $stack');
+      debugPrint('DEVICE INFO ERROR: $e');
+      debugPrint('STACK: $stack');
       rethrow;
     }
   }

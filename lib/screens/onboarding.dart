@@ -1,6 +1,7 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
-import 'common.dart';
 import '../platform/channels.dart';
+import '../l10n/app_localizations.dart';
 
 class OnboardingStep {
   final String? imagePath;
@@ -32,117 +33,120 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
   int currentPage = 0;
 
-  final List<OnboardingStep> steps = const [
-    // Welcome / Get Started Slide
-    OnboardingStep(
-      isTextOnly: true,
-      title: 'Get Started',
-      description: 'This short tour guides you through different ways of using TaskIt.',
-    ),
-    
-    // Method 1 Demarcation Slide (Text-only)
-    OnboardingStep(
-      isTextOnly: true,
-      title: 'Method 1: Quick Settings',
-      description: 'Create tasks quickly from any app by copying text to your clipboard and tapping the TaskIt Quick Settings Tile.',
-    ),
-    // Quick Settings setup slide (image-based)
-    OnboardingStep(
-      imagePath: 'assets/onboarding/main_page.png',
-      title: 'Enable Tile',
-      description: 'Add the TaskIt Quick Settings Tile to your device\'s notification panel for fast access.',
-      highlightRect: Rect.fromLTRB(0.18, 0.83, 0.82, 0.90),
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/quick_settings.png',
-      title: 'Quick Settings Tile',
-      description: 'TaskIt is now in your Quick Settings.',
-      highlightRect: Rect.fromLTRB(0.04, 0.36, 0.49, 0.44),
-      tip: 'Tip: Put it on the first screen of quick settings for ease of access.',
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/copy_text.png',
-      title: 'Copy Text',
-      description: 'Select any text you want to convert into a task/event, and tap "Copy".',
-      highlightRect: Rect.fromLTRB(0.04, 0.44, 0.96, 0.59),
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/quick_settings.png',
-      title: 'Tap TaskIt Tile',
-      description: 'Swipe down and tap the TaskIt quick settings tile.',
-      highlightRect: Rect.fromLTRB(0.04, 0.36, 0.49, 0.44),
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/calendar.png',
-      title: 'Event Created',
-      description: 'TaskIt prefills the details in your calendar app. Verify, adjust and tap "Save"!',
-      highlightRect: Rect.fromLTRB(0.04, 0.10, 0.96, 0.35),
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/content_page.png',
-      title: 'Back to Work',
-      description: 'Once saved, instantly return to what you were doing, keeping your flow uninterrupted.',
-      highlightRect: Rect.fromLTRB(0.04, 0.25, 0.96, 0.72),
-    ),
+  List<OnboardingStep> _getSteps(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      // Welcome / Get Started Slide
+      OnboardingStep(
+        isTextOnly: true,
+        title: l10n.getStarted,
+        description: l10n.welcomeDescription,
+      ),
+      
+      // Method 1 Demarcation Slide (Text-only)
+      OnboardingStep(
+        isTextOnly: true,
+        title: l10n.method1Title,
+        description: l10n.method1Description,
+      ),
+      // Quick Settings setup slide (image-based)
+      OnboardingStep(
+        imagePath: 'assets/onboarding/main_page.png',
+        title: l10n.enableTileTitle,
+        description: l10n.enableTileDescription,
+        highlightRect: const Rect.fromLTRB(0.18, 0.83, 0.82, 0.90),
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/quick_settings.png',
+        title: l10n.tileTitle,
+        description: l10n.tileDescription,
+        highlightRect: const Rect.fromLTRB(0.04, 0.36, 0.49, 0.44),
+        tip: l10n.tileTip,
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/copy_text.png',
+        title: l10n.copyTextTitle,
+        description: l10n.copyTextDescription,
+        highlightRect: const Rect.fromLTRB(0.04, 0.44, 0.96, 0.59),
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/quick_settings.png',
+        title: l10n.tapTileTitle,
+        description: l10n.tapTileDescription,
+        highlightRect: const Rect.fromLTRB(0.04, 0.36, 0.49, 0.44),
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/calendar.png',
+        title: l10n.eventCreatedTitle,
+        description: l10n.eventCreatedDescription,
+        highlightRect: const Rect.fromLTRB(0.04, 0.10, 0.96, 0.35),
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/content_page.png',
+        title: l10n.backToWorkTitle,
+        description: l10n.backToWorkDescription,
+        highlightRect: const Rect.fromLTRB(0.04, 0.25, 0.96, 0.72),
+      ),
 
-    // Method 2 Demarcation Slide (Text-only)
-    OnboardingStep(
-      isTextOnly: true,
-      title: 'Method 2: Share Sheet',
-      description: 'Send text directly to TaskIt using the system Share Sheet.',
-      tip: 'Tip: Depends on availability of Quickshare feature in the phone.',
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/copy_text.png',
-      title: 'Share Text',
-      description: 'First, select and copy the text as before.',
-      highlightRect: Rect.fromLTRB(0.04, 0.44, 0.96, 0.59),
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/share_via.png',
-      title: 'Share via TaskIt',
-      description: 'Tap "Share" and select "TaskIt" from the list of apps. TaskIt will fill out the calendar event for you.',
-      highlightRect: Rect.fromLTRB(0.20, 0.85, 0.39, 0.98),
-    ),
+      // Method 2 Demarcation Slide (Text-only)
+      OnboardingStep(
+        isTextOnly: true,
+        title: l10n.method2Title,
+        description: l10n.method2Description,
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/copy_text.png',
+        title: l10n.shareTextTitle,
+        description: l10n.shareTextDescription,
+        highlightRect: const Rect.fromLTRB(0.04, 0.44, 0.96, 0.59),
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/share_via.png',
+        title: l10n.shareViaTitle,
+        description: l10n.shareViaDescription,
+        highlightRect: const Rect.fromLTRB(0.20, 0.85, 0.39, 0.98),
+      ),
 
-    // Method 3 Demarcation Slide (Text-only)
-    OnboardingStep(
-      isTextOnly: true,
-      title: 'Method 3: Context Menu',
-      description: 'Create a task in a single action directly from the text selection context menu (if available).',
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/context_menu.png',
-      title: 'Context Menu',
-      description: 'Simply highlight the text and select "Create Task" from the context menu popover.',
-      highlightRect: Rect.fromLTRB(0.40, 0.33, 0.76, 0.38),
-    ),
+      // Method 3 Demarcation Slide (Text-only)
+      OnboardingStep(
+        isTextOnly: true,
+        title: l10n.method3Title,
+        description: l10n.method3Description,
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/context_menu.png',
+        title: l10n.contextMenuTitle,
+        description: l10n.contextMenuDescription,
+        highlightRect: const Rect.fromLTRB(0.40, 0.33, 0.76, 0.38),
+      ),
 
-    // Method 4 Demarcation Slide (Text-only)
-    OnboardingStep(
-      isTextOnly: true,
-      title: 'Method 4: App Launch',
-      description: 'Open the TaskIt app directly to create tasks manually from your copied clipboard contents.',
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/copy_text.png',
-      title: 'App Launch',
-      description: 'First, select and copy the text as before.',
-      highlightRect: Rect.fromLTRB(0.04, 0.44, 0.96, 0.59),
-    ),
-    OnboardingStep(
-      imagePath: 'assets/onboarding/main_page.png',
-      title: 'Create from App',
-      description: 'Open the TaskIt app directly and tap "Create from Clipboard" to parse and save the event.',
-      highlightRect: Rect.fromLTRB(0.14, 0.72, 0.86, 0.79),
-    ),
-  ];
+      // Method 4 Demarcation Slide (Text-only)
+      OnboardingStep(
+        isTextOnly: true,
+        title: l10n.method4Title,
+        description: l10n.method4Description,
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/copy_text.png',
+        title: l10n.appLaunchTitle,
+        description: l10n.appLaunchDescription,
+        highlightRect: const Rect.fromLTRB(0.04, 0.44, 0.96, 0.59),
+      ),
+      OnboardingStep(
+        imagePath: 'assets/onboarding/main_page.png',
+        title: l10n.createFromAppTitle,
+        description: l10n.createFromAppDescription,
+        highlightRect: const Rect.fromLTRB(0.14, 0.72, 0.86, 0.79),
+      ),
+    ];
+  }
 
   void _exitOnboarding() {
     Navigator.pop(context);
   }
 
   Widget _buildInstructionCard(OnboardingStep step, int index, int total) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -165,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 Text(
-                  'Step ${index + 1} of $total',
+                  l10n.stepInfo(index + 1, total),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],
@@ -210,7 +214,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
             ],
-            if (step.title == 'Enable Tile') ...[
+            if (step.title == l10n.enableTileTitle) ...[
               const SizedBox(height: 12),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
@@ -223,22 +227,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 onPressed: () async {
                   final success = await widget.channels.requestAddQuickSettingsTile();
-                  if (mounted) {
+                  if (success && mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          success
-                              ? 'Request sent. Check your quick settings panel!'
-                              : 'Failed to request adding tile.',
-                        ),
+                        content: Text(l10n.tileRequestSent),
                       ),
                     );
                   }
                 },
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text(
-                  'Add now',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                label: Text(
+                  l10n.addNow,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -255,17 +255,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       );
                     },
                     icon: const Icon(Icons.arrow_back, color: Color(0xFF01A414)),
-                    label: const Text(
-                      'Back',
-                      style: TextStyle(color: Color(0xFF01A414)),
+                    label: Text(
+                      l10n.back,
+                      style: const TextStyle(color: Color(0xFF01A414)),
                     ),
                   )
                 else
                   TextButton(
                     onPressed: _exitOnboarding,
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(color: Colors.grey),
+                    child: Text(
+                      l10n.skip,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ),
                 ElevatedButton.icon(
@@ -292,7 +292,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     size: 18,
                   ),
                   label: Text(
-                    index == total - 1 ? 'Done' : 'Next',
+                    index == total - 1 ? l10n.done : l10n.next,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -306,6 +306,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final steps = _getSteps(context);
     final step = steps[currentPage];
     final total = steps.length;
     final showCardAtTop = step.highlightRect != null && step.highlightRect!.top >= 0.5;
@@ -438,10 +439,10 @@ class OnboardingTextSlide extends StatelessWidget {
   });
 
   IconData _getMethodIcon() {
-    if (step.title.contains('Method 1')) return Icons.bolt;
-    if (step.title.contains('Method 2')) return Icons.share_outlined;
-    if (step.title.contains('Method 3')) return Icons.ads_click_outlined;
-    if (step.title.contains('Method 4')) return Icons.smartphone_outlined;
+    if (index == 1) return Icons.bolt;
+    if (index == 8) return Icons.share_outlined;
+    if (index == 11) return Icons.ads_click_outlined;
+    if (index == 13) return Icons.smartphone_outlined;
     return Icons.rocket_launch_outlined;
   }
 
@@ -449,6 +450,7 @@ class OnboardingTextSlide extends StatelessWidget {
   Widget build(BuildContext context) {
     final iconData = _getMethodIcon();
     final isFirst = index == 0;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -550,17 +552,17 @@ class OnboardingTextSlide extends StatelessWidget {
                       TextButton.icon(
                         onPressed: onBack,
                         icon: const Icon(Icons.arrow_back, color: Color(0xFF01A414)),
-                        label: const Text(
-                          'Back',
-                          style: TextStyle(color: Color(0xFF01A414)),
+                        label: Text(
+                          l10n.back,
+                          style: const TextStyle(color: Color(0xFF01A414)),
                         ),
                       )
                     else
                       TextButton(
                         onPressed: onSkip,
-                        child: const Text(
-                          'Skip',
-                          style: TextStyle(color: Colors.grey),
+                        child: Text(
+                          l10n.skip,
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       ),
                     ElevatedButton.icon(
@@ -578,7 +580,7 @@ class OnboardingTextSlide extends StatelessWidget {
                         size: 18,
                       ),
                       label: Text(
-                        index == total - 1 ? 'Done' : 'Next',
+                        index == total - 1 ? l10n.done : l10n.next,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),

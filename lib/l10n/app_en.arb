@@ -1,0 +1,67 @@
+{
+  "@@locale": "en",
+  "appTitle": "TaskIt",
+  "homeTitle": "Create tasks from any app!",
+  "createFromClipboard": "Create from Clipboard",
+  "addQuickSettingsTile": "Add Quick Settings Tile",
+  "clipboardEmpty": "Clipboard is empty or contains no text.",
+  "watchTutorial": "Watch Tutorial",
+  "taskCreated": "Task created successfully!",
+  "creatingTask": "Creating task...",
+  "addNow": "Add now",
+  "back": "Back",
+  "skip": "Skip",
+  "next": "Next",
+  "done": "Done",
+  
+  "stepInfo": "Step {index} of {total}",
+  "@stepInfo": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "getStarted": "Get Started",
+  "welcomeDescription": "This short tour guides you through different ways of using TaskIt.",
+  
+  "method1Title": "Method 1: Quick Settings",
+  "method1Description": "Create tasks quickly from any app by copying text to your clipboard and tapping the TaskIt Quick Settings Tile.",
+  "enableTileTitle": "Enable Tile",
+  "enableTileDescription": "Add the TaskIt Quick Settings Tile to your device's notification panel for fast access.",
+  "tileTitle": "Quick Settings Tile",
+  "tileDescription": "TaskIt is now in your Quick Settings.",
+  "tileTip": "Tip: Put it on the first screen of quick settings for ease of access.",
+  "copyTextTitle": "Method 1: Copy Text",
+  "copyTextDescription": "Select any text you want to convert into a task/event, and tap \"Copy\".",
+  "tapTileTitle": "Tap TaskIt Tile",
+  "tapTileDescription": "Swipe down and tap the TaskIt quick settings tile.",
+  "eventCreatedTitle": "Event Created",
+  "eventCreatedDescription": "TaskIt reads the clipboard, automatically parses the task title and time, and opens your calendar with the details pre-filled. Just tap \"Save\"!",
+  "backToWorkTitle": "Back to Work",
+  "backToWorkDescription": "Once saved, you are instantly returned to what you were doing, keeping your flow uninterrupted.",
+  
+  "method2Title": "Method 2: Share Sheet",
+  "method2Description": "Send text directly to TaskIt using the system Share Sheet, perfect for apps where copying to clipboard is restricted or slow.",
+  "shareTextTitle": "Method 2: Share Text",
+  "shareTextDescription": "First, select and copy the text as before.",
+  "shareViaTitle": "Share via TaskIt",
+  "shareViaDescription": "Tap \"Share\" and select \"TaskIt\" from the list of apps. TaskIt will parse it and open the calendar event.",
+  
+  "method3Title": "Method 3: Context Menu",
+  "method3Description": "Create a task in a single action directly from the text selection context menu without leaving your active app.",
+  "contextMenuTitle": "Method 3: Context Menu",
+  "contextMenuDescription": "Simply highlight the text and select \"Create Task\" from the context menu popover.",
+  
+  "method4Title": "Method 4: App Launch",
+  "method4Description": "Open the TaskIt app directly to create tasks manually from your copied clipboard contents.",
+  "appLaunchTitle": "Method 4: App Launch",
+  "appLaunchDescription": "First, select and copy the text as before.",
+  "createFromAppTitle": "Create from App",
+  "createFromAppDescription": "Open the TaskIt app directly and tap \"Create from Clipboard\" to parse and save the event.",
+  "tileRequestSent": "Request sent. Tap 'Add' on the system dialog."
+}

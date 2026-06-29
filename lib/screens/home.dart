@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'common.dart';
 import 'onboarding.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../l10n/app_localizations.dart';
 import '../platform/channels.dart';
 
 class InfoScreen extends StatefulWidget {
@@ -197,9 +198,9 @@ class _InfoScreenState extends State<InfoScreen> {
                               child: Align(
                                 alignment: Alignment.center,
                                 widthFactor: 0.7,
-                                child: const Text(
-                                  'Create tasks from\nany app!',
-                                  style: TextStyle(
+                                child: Text(
+                                  AppLocalizations.of(context)!.homeTitle,
+                                  style: const TextStyle(
                                     fontFamily: 'Roboto',
                                     fontSize: 24,
                                     height: 30 / 24,
@@ -214,9 +215,9 @@ class _InfoScreenState extends State<InfoScreen> {
 
                             ElevatedButton.icon(
                               icon: const Icon(Icons.assignment_turned_in_rounded, color: Color(0xFF01A414), size: 22),
-                              label: const Text(
-                                "Create from Clipboard",
-                                style: TextStyle(
+                              label: Text(
+                                AppLocalizations.of(context)!.createFromClipboard,
+                                style: const TextStyle(
                                   color: Color(0xFF01A414),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
@@ -237,8 +238,8 @@ class _InfoScreenState extends State<InfoScreen> {
                                 if (text == null || text.trim().isEmpty) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Clipboard is empty or contains no text.'),
+                                      SnackBar(
+                                        content: Text(AppLocalizations.of(context)!.clipboardEmpty),
                                         behavior: SnackBarBehavior.floating,
                                       ),
                                     );
@@ -255,10 +256,10 @@ class _InfoScreenState extends State<InfoScreen> {
                             if (sdkInt >= 33) ...[
                               ElevatedButton.icon(
                                 icon: const Icon(Icons.add_circle_outline, color: Color(0xFF01A414)),
-                                label: const Text(
-                                  "Add Quick Settings Tile",
-                                  style: TextStyle(color: Color(0xFF01A414), fontWeight: FontWeight.bold),
-                                ),
+                                  label: Text(
+                                    AppLocalizations.of(context)!.addQuickSettingsTile,
+                                    style: const TextStyle(color: Color(0xFF01A414), fontWeight: FontWeight.bold),
+                                  ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   foregroundColor: const Color(0xFF01A414),
@@ -272,7 +273,7 @@ class _InfoScreenState extends State<InfoScreen> {
                                   final success = await widget.channels.requestAddQuickSettingsTile();
                                   if (success && context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("Request sent. Tap 'Add' on the system dialog.")),
+                                      SnackBar(content: Text(AppLocalizations.of(context)!.tileRequestSent)),
                                     );
                                   }
                                 },
@@ -300,9 +301,9 @@ class _InfoScreenState extends State<InfoScreen> {
                                       ),
                                     ],
                                   ),
-                                  child: const Text(
-                                    'Watch Tutorial',
-                                    style: TextStyle(
+                                  child: Text(
+                                    AppLocalizations.of(context)!.watchTutorial,
+                                    style: const TextStyle(
                                       fontFamily: 'Roboto',
                                       fontSize: 20,
                                       height: 1.2,
