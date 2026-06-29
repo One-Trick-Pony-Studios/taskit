@@ -1,16 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'common.dart';
 import 'onboarding.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../platform/channels.dart';
 
-class InfoScreen extends StatelessWidget {
+class InfoScreen extends StatefulWidget {
   final Channels channels;
+  final bool isDirectLaunch;
 
-  InfoScreen({super.key, Channels? channels})
+  InfoScreen({super.key, Channels? channels, this.isDirectLaunch = false})
       : channels = channels ?? MethodChannelChannels();
+
+  @override
+  State<InfoScreen> createState() => _InfoScreenState();
+}
+
+class _InfoScreenState extends State<InfoScreen> {
+  late Future<int> _sdkVersionFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _sdkVersionFuture = _getAndroidSdkInt();
+    _checkFirstRun();
+  }
+
+  Future<void> _checkFirstRun() async {
+    if (!widget.isDirectLaunch) {
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+    if (!hasSeenOnboarding) {
+      await prefs.setBool('hasSeenOnboarding', true);
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+          );
+        });
+      }
+    }
+  }
 
   Future<int> _getAndroidSdkInt() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -21,7 +56,7 @@ class InfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<int>(
-      future: _getAndroidSdkInt(),
+      future: _sdkVersionFuture,
       builder: (context, sdkSnapshot) {
         if (sdkSnapshot.connectionState == ConnectionState.waiting) {
           //debugPrint('Waiting for SDK version');
@@ -178,18 +213,18 @@ class InfoScreen extends StatelessWidget {
                             const Spacer(flex: 2),
 
                             ElevatedButton.icon(
-                              icon: const Icon(Icons.assignment_turned_in_rounded, color: Colors.white, size: 22),
+                              icon: const Icon(Icons.assignment_turned_in_rounded, color: Color(0xFF01A414), size: 22),
                               label: const Text(
                                 "Create from Clipboard",
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Color(0xFF01A414),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
                                 ),
                               ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF01A414), // Brand green
-                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF01A414),
                                 elevation: 4,
                                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                                 shape: RoundedRectangleBorder(
@@ -210,72 +245,40 @@ class InfoScreen extends StatelessWidget {
                                   }
                                   return;
                                 }
-                                await channels.addCalendarEventFromText(text.trim());
+                                await widget.channels.addCalendarEventFromText(text.trim());
                               },
                             ),
 
-                            const Spacer(flex: 2),
+                            const Spacer(flex: 1),
+
                             // Conditional action based on Android version
-                            if (sdkInt >= minSdk)
-                              Column(
-                                children: [
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      shape: const CircleBorder(),
-                                      padding: const EdgeInsets.all(12),
-                                      backgroundColor: Colors.white,
-                                      elevation: 4,
-                                    ),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) => const OnboardingScreen()),
-                                      );
-                                    },
-                                    child: const Icon(Icons.arrow_forward,
-                                        color: Colors.green, size: 36),
+                            if (sdkInt >= 33) ...[
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.add_circle_outline, color: Color(0xFF01A414)),
+                                label: const Text(
+                                  "Add Quick Settings Tile",
+                                  style: TextStyle(color: Color(0xFF01A414), fontWeight: FontWeight.bold),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: const Color(0xFF01A414),
+                                  elevation: 3,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24),
                                   ),
-                                  const SizedBox(height: 12),
-                                  const Text(
-                                    'Get Started',
-                                    style: TextStyle(
-                                      fontFamily: 'Roboto',
-                                      fontSize: 24,
-                                      height: 28 / 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  if (sdkInt >= 33) ...[
-                                    const SizedBox(height: 24),
-                                    ElevatedButton.icon(
-                                      icon: const Icon(Icons.add_circle_outline, color: Colors.green),
-                                      label: const Text(
-                                        "Add Quick Settings Tile",
-                                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white,
-                                        elevation: 3,
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(24),
-                                        ),
-                                      ),
-                                      onPressed: () async {
-                                        final success = await channels.requestAddQuickSettingsTile();
-                                        if (success && context.mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text("Request sent. Tap 'Add' on the system dialog.")),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ],
-                              )
-                            else
+                                ),
+                                onPressed: () async {
+                                  final success = await widget.channels.requestAddQuickSettingsTile();
+                                  if (success && context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Request sent. Tap 'Add' on the system dialog.")),
+                                    );
+                                  }
+                                },
+                              ),
+                              const Spacer(flex: 2),
+                            ] else if (sdkInt < minSdk) ...[
                               InkWell(
                                 onTap: () async {
                                   final Uri url = Uri.parse('https://youtube.com/shorts/Q_Ia-PNysoE');
@@ -310,8 +313,43 @@ class InfoScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            const Spacer(flex: 1),
+                              const Spacer(flex: 2),
+                            ] else ...[
+                              const Spacer(flex: 2),
+                            ],
                           ],
+                        ),
+                      ),
+
+                      // Help button (?) tucked under the bottom right corner
+                      Positioned(
+                        bottom: 24,
+                        right: 24,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(8),
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF01A414),
+                            elevation: 4,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const OnboardingScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            '?',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ],

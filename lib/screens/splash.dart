@@ -36,19 +36,21 @@ class _SplashScreenState extends State<SplashScreen> {
         await _createTaskFromSharedData(data);
       } else {
         await widget.channels.checkAndRequestPermission();
-        _navigateToInfoScreen();
+        _navigateToInfoScreen(isDirectLaunch: true);
       }
     } catch (e) {
-      _navigateToInfoScreen();
+      _navigateToInfoScreen(isDirectLaunch: false);
     }
   }
 
-  void _navigateToInfoScreen() {
+  void _navigateToInfoScreen({bool isDirectLaunch = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => InfoScreen()),
+          MaterialPageRoute(
+            builder: (_) => InfoScreen(isDirectLaunch: isDirectLaunch),
+          ),
         );
       }
     });
@@ -76,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // Ignored / handled natively
     }
 
-    _navigateToInfoScreen();
+    _navigateToInfoScreen(isDirectLaunch: false);
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taskit/platform/channels.dart';
 import 'package:taskit/screens/splash.dart';
 import 'package:taskit/screens/home.dart';
@@ -18,8 +19,26 @@ void main() {
     late MockChannels mockChannels;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({'hasSeenOnboarding': true});
       mockChannels = MockChannels();
       when(mockChannels.checkAndRequestPermission()).thenAnswer((_) async => true);
+
+      String clipboardText = '';
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('flutter/platform', JSONMethodCodec()),
+        (MethodCall methodCall) async {
+          if (methodCall.method == 'Clipboard.setData') {
+            final Map? args = methodCall.arguments as Map?;
+            clipboardText = args?['text'] ?? '';
+            return null;
+          }
+          if (methodCall.method == 'Clipboard.getData') {
+            return <String, dynamic>{'text': clipboardText};
+          }
+          return null;
+        },
+      );
 
       final mockAndroidInfo = {
         'version': {
@@ -166,6 +185,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: InfoScreen(channels: mockChannels),
       ));
+      await tester.pump();
 
       final buttonFinder = find.widgetWithText(ElevatedButton, 'Create from Clipboard');
       expect(buttonFinder, findsOneWidget);
@@ -182,6 +202,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: InfoScreen(channels: mockChannels),
       ));
+      await tester.pump();
 
       final buttonFinder = find.widgetWithText(ElevatedButton, 'Create from Clipboard');
       await tester.tap(buttonFinder);
@@ -189,6 +210,30 @@ void main() {
 
       expect(find.text('Clipboard is empty or contains no text.'), findsOneWidget);
       verifyNever(mockChannels.addCalendarEventFromText(any));
+    });
+
+    testWidgets('Auto-triggers onboarding on first use', (WidgetTester tester) async {
+      SharedPreferences.setMockInitialValues({'hasSeenOnboarding': false});
+
+      // Set a larger size for the tester to prevent overflow errors in OnboardingScreen
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(MaterialApp(
+        home: InfoScreen(channels: mockChannels, isDirectLaunch: true),
+      ));
+
+      // InfoScreen builds and schedules push of OnboardingScreen
+      await tester.pump(); 
+      // Handle the navigation transition
+      await tester.pumpAndSettle();
+
+      // Verify OnboardingScreen is shown (by finding the 'Skip' text button)
+      expect(find.text('Skip'), findsOneWidget);
     });
   });
 }
