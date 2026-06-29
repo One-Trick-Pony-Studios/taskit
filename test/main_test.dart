@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taskit/platform/channels.dart';
 import 'package:taskit/screens/splash.dart';
 import 'package:taskit/screens/home.dart';
+import 'package:taskit/screens/onboarding.dart';
 
 // Generated mock file
 import 'main_test.mocks.dart';
@@ -234,6 +235,44 @@ void main() {
 
       // Verify OnboardingScreen is shown (by finding the 'Skip' text button)
       expect(find.text('Skip'), findsOneWidget);
+    });
+
+    testWidgets('OnboardingScreen renders Add now button on Enable Tile step and triggers channel call', (WidgetTester tester) async {
+      when(mockChannels.requestAddQuickSettingsTile()).thenAnswer((_) async => true);
+
+      // Set a larger size for the tester to prevent overflow errors in OnboardingScreen
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(MaterialApp(
+        home: OnboardingScreen(channels: mockChannels),
+      ));
+
+      // The first page is "Get Started" overview slide (text-only)
+      expect(find.text('Get Started'), findsOneWidget);
+      expect(find.text('Add now'), findsNothing);
+
+      // Tap Next to navigate through "Method 1: Quick Settings" to "Enable Tile" step
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+
+      // We are now on "Enable Tile" step, which should render the "Add now" button
+      expect(find.text('Enable Tile'), findsOneWidget);
+      final addNowButton = find.widgetWithText(ElevatedButton, 'Add now');
+      expect(addNowButton, findsOneWidget);
+
+      // Tap "Add now" button
+      await tester.tap(addNowButton);
+      await tester.pump();
+
+      // Verify channel method was called
+      verify(mockChannels.requestAddQuickSettingsTile()).called(1);
     });
   });
 }

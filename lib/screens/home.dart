@@ -40,7 +40,7 @@ class _InfoScreenState extends State<InfoScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+            MaterialPageRoute(builder: (_) => OnboardingScreen(channels: widget.channels)),
           );
         });
       }
@@ -339,7 +339,7 @@ class _InfoScreenState extends State<InfoScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const OnboardingScreen(),
+                                builder: (_) => OnboardingScreen(channels: widget.channels),
                               ),
                             );
                           },
