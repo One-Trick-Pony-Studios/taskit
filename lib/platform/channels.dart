@@ -11,9 +11,6 @@ abstract class Channels {
   Future<void> addCalendarEventFromText(String text);
   Future<bool> requestAddQuickSettingsTile();
   Future<bool> checkAndRequestPermission();
-  Future<Map<String, dynamic>> getAiStatus();
-  Future<bool> setAiEnabled(bool enabled);
-  Future<bool> downloadAiModel();
 }
 
 class MethodChannelChannels implements Channels {
@@ -76,48 +73,6 @@ class MethodChannelChannels implements Channels {
     } catch (e) {
       if (kDebugMode) {
         print('Error checking/requesting calendar permission: $e');
-      }
-      return false;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> getAiStatus() async {
-    try {
-      final result = await _calendarChannel.invokeMethod('getAiStatus');
-      if (result is Map) {
-        return Map<String, dynamic>.from(result);
-      }
-      return {'status': 'unavailable', 'enabled': false};
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error getting AI status: $e');
-      }
-      return {'status': 'unavailable', 'enabled': false};
-    }
-  }
-
-  @override
-  Future<bool> setAiEnabled(bool enabled) async {
-    try {
-      final bool? success = await _calendarChannel.invokeMethod('setAiEnabled', {'enabled': enabled});
-      return success ?? false;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error setting AI enabled: $e');
-      }
-      return false;
-    }
-  }
-
-  @override
-  Future<bool> downloadAiModel() async {
-    try {
-      final bool? success = await _calendarChannel.invokeMethod('downloadAiModel');
-      return success ?? false;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error downloading AI model: $e');
       }
       return false;
     }

@@ -63,8 +63,5 @@
   "appLaunchDescription": "First, select and copy the text as before.",
   "createFromAppTitle": "Create from App",
   "createFromAppDescription": "Open the TaskIt app directly and tap \"Create from Clipboard\" to parse and save the event.",
-  "tileRequestSent": "Request sent. Tap 'Add' on the system dialog.",
-  "geminiNanoTitle": "Gemini Nano AI",
-  "geminiNanoSubtitle": "Smart on-device scheduling",
-  "geminiNanoDownloading": "Preparing on-device AI model..."
+  "tileRequestSent": "Request sent. Tap 'Add' on the system dialog."
 }

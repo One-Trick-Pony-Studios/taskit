@@ -10,6 +10,31 @@ import java.util.*
 object CalendarHelper {
     private const val TAG = "CalendarHelper"
 
+    val WORD_NUMBERS = mapOf(
+        // English
+        "one" to 1, "two" to 2, "three" to 3, "four" to 4, "five" to 5,
+        "six" to 6, "seven" to 7, "eight" to 8, "nine" to 9, "ten" to 10,
+        "eleven" to 11, "twelve" to 12,
+        // Spanish
+        "una" to 1, "uno" to 1, "dos" to 2, "tres" to 3, "cuatro" to 4, "cinco" to 5,
+        "seis" to 6, "siete" to 7, "ocho" to 8, "nueve" to 9, "diez" to 10,
+        "once" to 11, "doce" to 12,
+        // German
+        "eins" to 1, "ein" to 1, "zwei" to 2, "drei" to 3, "vier" to 4, "fünf" to 5,
+        "fuenf" to 5, "sechs" to 6, "sieben" to 7, "acht" to 8, "neun" to 9,
+        "zehn" to 10, "elf" to 11, "zwölf" to 12, "zwoelf" to 12,
+        // French
+        "un" to 1, "une" to 1, "deux" to 2, "trois" to 3, "quatre" to 4, "cinq" to 5,
+        "six" to 6, "sept" to 7, "huit" to 8, "neuf" to 9, "dix" to 10,
+        "onze" to 11, "douze" to 12,
+        // Hindi
+        "एक" to 1, "दो" to 2, "तीन" to 3, "चार" to 4, "पाँच" to 5, "पांच" to 5,
+        "छह" to 6, "सात" to 7, "आठ" to 8, "नौ" to 9, "दस" to 10,
+        "ग्यारह" to 11, "बारह" to 12
+    )
+
+    private val WORD_NUMBER_REGEX_PART = WORD_NUMBERS.keys.joinToString("|")
+
     fun parseTextForEventDetails(text: String?): Triple<String, Long?, Long?> {
         if (text.isNullOrBlank()) return Triple("TaskIt Task", null, null)
 
@@ -91,16 +116,48 @@ object CalendarHelper {
                 }
             }
 
-            // B. Single explicit time (avoids false-matching lone numbers like "room 4")
+            // B. Colloquial phrases: "half past 4", "quarter past 3", "quarter to 6"
             if (!timeMatched) {
-                // Must have am/pm, OR explicit minutes (HH:mm), OR preceded by at/around/@/by
+                val colloquialPastToRegex = Regex(
+                    """\b(half|quarter)\s+(past|to)\s+(\d{1,2}|$WORD_NUMBER_REGEX_PART)\s*(am|pm)?\b""",
+                    RegexOption.IGNORE_CASE
+                )
+                colloquialPastToRegex.find(lower)?.let { match ->
+                    val type = match.groupValues[1].lowercase()
+                    val relation = match.groupValues[2].lowercase()
+                    val hourStr = match.groupValues[3].lowercase()
+                    val ampm = match.groupValues[4].lowercase().ifEmpty { null }
+
+                    val rawHour = hourStr.toIntOrNull() ?: WORD_NUMBERS[hourStr]
+                    if (rawHour != null && rawHour in 1..24) {
+                        var resolvedHour = resolveSmartHour(rawHour, ampm)
+                        val minute = when {
+                            type == "half" && relation == "past" -> 30
+                            type == "quarter" && relation == "past" -> 15
+                            type == "quarter" && relation == "to" -> {
+                                resolvedHour = (resolvedHour - 1 + 24) % 24
+                                45
+                            }
+                            else -> 0
+                        }
+                        setTime(calendar, resolvedHour, minute)
+                        timeMatched = true
+                        matchedSnippets.add(match.value)
+                    }
+                }
+            }
+
+            // C. Single explicit time (numeric with am/pm, minutes, or preposition)
+            if (!timeMatched) {
                 val amPmTimeRegex = Regex("""\b(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\b""", RegexOption.IGNORE_CASE)
                 val minuteTimeRegex = Regex("""\b([01]?\d|2[0-3])[:.](\d{2})\b""")
-                val prepTimeRegex = Regex("""\b(?:at|around|@|by)\s+(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\b""", RegexOption.IGNORE_CASE)
+                val prepTimeRegex = Regex("""\b(?:at|around|@|by)\s+(\d{1,2})(?:[:.](\d{2}))?\s*(?:o'clock|oclock|बजे)?\s*(am|pm)?\b""", RegexOption.IGNORE_CASE)
+                val oclockRegex = Regex("""\b(\d{1,2})\s*(?:o'clock|oclock|बजे)\s*(am|pm)?\b""", RegexOption.IGNORE_CASE)
 
                 val amPmMatch = amPmTimeRegex.find(lower)
                 val minuteMatch = minuteTimeRegex.find(lower)
                 val prepMatch = prepTimeRegex.find(lower)
+                val oclockMatch = oclockRegex.find(lower)
 
                 when {
                     amPmMatch != null -> {
@@ -116,10 +173,18 @@ object CalendarHelper {
                         val hour = prepMatch.groupValues[1].toIntOrNull() ?: 10
                         val minute = prepMatch.groupValues[2].ifEmpty { "0" }.toIntOrNull() ?: 0
                         val ampm = prepMatch.groupValues[3].lowercase().ifEmpty { null }
-                        val resolvedHour = resolveHour(hour, ampm)
+                        val resolvedHour = resolveSmartHour(hour, ampm)
                         setTime(calendar, resolvedHour, minute)
                         timeMatched = true
                         matchedSnippets.add(prepMatch.value)
+                    }
+                    oclockMatch != null -> {
+                        val hour = oclockMatch.groupValues[1].toIntOrNull() ?: 10
+                        val ampm = oclockMatch.groupValues[2].lowercase().ifEmpty { null }
+                        val resolvedHour = resolveSmartHour(hour, ampm)
+                        setTime(calendar, resolvedHour, 0)
+                        timeMatched = true
+                        matchedSnippets.add(oclockMatch.value)
                     }
                     minuteMatch != null -> {
                         val hour = minuteMatch.groupValues[1].toIntOrNull() ?: 10
@@ -131,7 +196,41 @@ object CalendarHelper {
                 }
             }
 
-            // C. Time of day descriptive words (multilingual)
+            // D. Spelled-out numbers (e.g. "at five", "at seven pm", "around four o'clock")
+            if (!timeMatched) {
+                val spelledOutTimeRegex = Regex(
+                    """\b(?:at|around|@|by|um|à|a\s+las|पर)\s+($WORD_NUMBER_REGEX_PART)(?:\s*(?:o'clock|oclock|uhr|heures|horas|बजे))?\s*(am|pm)?\b""",
+                    RegexOption.IGNORE_CASE
+                )
+                val spelledMatch = spelledOutTimeRegex.find(lower)
+                if (spelledMatch != null) {
+                    val wordHour = spelledMatch.groupValues[1].lowercase()
+                    val ampm = spelledMatch.groupValues[2].lowercase().ifEmpty { null }
+                    val rawHour = WORD_NUMBERS[wordHour]
+                    if (rawHour != null) {
+                        val resolvedHour = resolveSmartHour(rawHour, ampm)
+                        setTime(calendar, resolvedHour, 0)
+                        timeMatched = true
+                        matchedSnippets.add(spelledMatch.value)
+                    }
+                } else {
+                    // Standalone word + oclock / am / pm (e.g. "five o'clock", "five pm")
+                    val wordSuffixRegex = Regex("""\b($WORD_NUMBER_REGEX_PART)\s*(?:o'clock|oclock|बजे|(am|pm))\b""", RegexOption.IGNORE_CASE)
+                    wordSuffixRegex.find(lower)?.let { match ->
+                        val wordHour = match.groupValues[1].lowercase()
+                        val ampm = match.groupValues[2].lowercase().ifEmpty { null }
+                        val rawHour = WORD_NUMBERS[wordHour]
+                        if (rawHour != null) {
+                            val resolvedHour = resolveSmartHour(rawHour, ampm)
+                            setTime(calendar, resolvedHour, 0)
+                            timeMatched = true
+                            matchedSnippets.add(match.value)
+                        }
+                    }
+                }
+            }
+
+            // E. Time of day descriptive words (multilingual)
             if (!timeMatched) {
                 val timeOfDayRegex = Regex(
                     """\b(morning|afternoon|evening|night|noon|midnight|mañana|tarde|noche|mediodía|morgens|nachmittag|abend|nacht|mittag|matin|après-midi|apres-midi|soir|nuit|midi|सुबह|दोपहर|शाम|रात)\b""",
@@ -156,32 +255,57 @@ object CalendarHelper {
         }
 
         // ------------------------------------------------------------------
-        // Pass 2: Relative offsets (e.g. "in 30 mins", "in 2 hours", "in 3 days")
+        // Pass 2: Relative offsets (e.g. "in 30 mins", "after 2 hours", "in a couple of hours")
         // ------------------------------------------------------------------
         if (!timeMatched || !dateMatched) {
-            val offsetRegex = Regex("""\bin\s+(\d+)\s*(mins?|minutes?|hours?|hrs?|days?|weeks?)\b""", RegexOption.IGNORE_CASE)
-            offsetRegex.find(lower)?.let { match ->
-                val amount = match.groupValues[1].toIntOrNull() ?: 0
-                val unit = match.groupValues[2].lowercase()
+            // Conversational relative offsets
+            val colloquialOffsetRegex = Regex(
+                """\b(?:in|after)\s+(?:a\s+)?(half\s+an\s+hour|couple\s+of\s+hours|hour)\b""",
+                RegexOption.IGNORE_CASE
+            )
+            val colloquialMatch = colloquialOffsetRegex.find(lower)
+            if (colloquialMatch != null) {
+                val phrase = colloquialMatch.groupValues[1].lowercase()
                 when {
-                    unit.startsWith("min") -> {
-                        calendar.add(Calendar.MINUTE, amount)
+                    phrase.contains("half") -> {
+                        calendar.add(Calendar.MINUTE, 30)
                         timeMatched = true
                     }
-                    unit.startsWith("hour") || unit.startsWith("hr") -> {
-                        calendar.add(Calendar.HOUR_OF_DAY, amount)
+                    phrase.contains("couple") -> {
+                        calendar.add(Calendar.HOUR_OF_DAY, 2)
                         timeMatched = true
                     }
-                    unit.startsWith("day") -> {
-                        calendar.add(Calendar.DAY_OF_YEAR, amount)
-                        dateMatched = true
-                    }
-                    unit.startsWith("week") -> {
-                        calendar.add(Calendar.WEEK_OF_YEAR, amount)
-                        dateMatched = true
+                    phrase == "hour" -> {
+                        calendar.add(Calendar.HOUR_OF_DAY, 1)
+                        timeMatched = true
                     }
                 }
-                matchedSnippets.add(match.value)
+                matchedSnippets.add(colloquialMatch.value)
+            } else {
+                val offsetRegex = Regex("""\b(?:in|after)\s+(\d+)\s*(mins?|minutes?|hours?|hrs?|days?|weeks?)\b""", RegexOption.IGNORE_CASE)
+                offsetRegex.find(lower)?.let { match ->
+                    val amount = match.groupValues[1].toIntOrNull() ?: 0
+                    val unit = match.groupValues[2].lowercase()
+                    when {
+                        unit.startsWith("min") -> {
+                            calendar.add(Calendar.MINUTE, amount)
+                            timeMatched = true
+                        }
+                        unit.startsWith("hour") || unit.startsWith("hr") -> {
+                            calendar.add(Calendar.HOUR_OF_DAY, amount)
+                            timeMatched = true
+                        }
+                        unit.startsWith("day") -> {
+                            calendar.add(Calendar.DAY_OF_YEAR, amount)
+                            dateMatched = true
+                        }
+                        unit.startsWith("week") -> {
+                            calendar.add(Calendar.WEEK_OF_YEAR, amount)
+                            dateMatched = true
+                        }
+                    }
+                    matchedSnippets.add(match.value)
+                }
             }
         }
 
@@ -240,7 +364,7 @@ object CalendarHelper {
         }
 
         // ------------------------------------------------------------------
-        // Pass 4: Fuzzy and numeric date formats
+        // Pass 4: Fuzzy and numeric date formats, and Standalone Ordinals
         // ------------------------------------------------------------------
         if (!dateMatched) {
             val dateFormats = listOf(
@@ -296,6 +420,23 @@ object CalendarHelper {
                 }
                 if (dateMatched) break
             }
+
+            // Standalone ordinal day (e.g. "on the 25th", "on 25th", "on the 1st")
+            if (!dateMatched) {
+                val ordinalRegex = Regex("""\b(?:on\s+(?:the\s+)?)?(\d{1,2})(?:st|nd|rd|th)\b""", RegexOption.IGNORE_CASE)
+                ordinalRegex.find(lower)?.let { match ->
+                    val day = match.groupValues[1].toIntOrNull()
+                    if (day != null && day in 1..31) {
+                        val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+                        calendar.set(Calendar.DAY_OF_MONTH, day)
+                        if (day < currentDay) {
+                            calendar.add(Calendar.MONTH, 1)
+                        }
+                        dateMatched = true
+                        matchedSnippets.add(match.value)
+                    }
+                }
+            }
         }
 
         // ------------------------------------------------------------------
@@ -333,6 +474,20 @@ object CalendarHelper {
         }
     }
 
+    private fun resolveSmartHour(hour: Int, ampm: String?): Int {
+        if (ampm != null) {
+            return resolveHour(hour, ampm)
+        }
+        // If hour <= 12 and no AM/PM provided, pick the future hour today if possible
+        if (hour in 1..12) {
+            val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+            if (currentHour >= hour && hour + 12 < 24) {
+                return hour + 12
+            }
+        }
+        return hour
+    }
+
     private fun parseTimeComponents(raw: String, defaultAmPm: String? = null): Pair<Int, Int>? {
         val regex = Regex("""^(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?$""", RegexOption.IGNORE_CASE)
         val match = regex.find(raw) ?: return null
@@ -356,40 +511,49 @@ object CalendarHelper {
         }
     }
 
-    private fun extractCleanTitle(originalText: String, matchedSnippets: List<String>): String {
-        val firstLine = originalText.lines().firstOrNull { it.isNotBlank() }?.trim() ?: originalText.trim()
-        var cleaned = firstLine
+    fun extractCleanTitle(originalText: String, matchedSnippets: List<String>): String {
+        // Collapse multiple lines to single line so multi-line messages (like chat notifications) keep context
+        var cleaned = originalText.replace(Regex("""[\r\n]+"""), " ").trim()
 
         // Strip common prefix filler words
         val prefixRegex = Regex("""^(?:hey|hi|hello|reminder|don't forget to|remember to|task|todo)[:,\s]+""", RegexOption.IGNORE_CASE)
         cleaned = prefixRegex.replace(cleaned, "").trim()
 
-        // Strip matched date/time phrases along with any preceding time prepositions
+        // Strip matched date/time phrases along with any preceding time prepositions (including @)
         for (snippet in matchedSnippets) {
             if (snippet.isNotBlank() && snippet.length >= 2) {
-                val snippetRegex = Regex("""(?:\b(?:at|on|in|by|around|@|from|to)\s+)?\Q$snippet\E""", RegexOption.IGNORE_CASE)
+                val snippetRegex = Regex("""(?:\b(?:at|on|in|by|around|from|to)\s+|@\s*)?\Q$snippet\E""", RegexOption.IGNORE_CASE)
                 cleaned = snippetRegex.replace(cleaned, "")
             }
         }
 
-        // Clean up remaining dangling prepositions before punctuation or line end
-        cleaned = cleaned.replace(Regex("""\b(?:at|on|in|by|around|@|from|to)\s*([.,;?!]|$)""", RegexOption.IGNORE_CASE), "$1")
+        // Clean up remaining dangling prepositions, @ symbol, and punctuation
+        cleaned = cleaned.replace(Regex("""\b(?:o'clock|oclock|uhr|heures|horas|बजे)\b""", RegexOption.IGNORE_CASE), "")
+        cleaned = cleaned.replace(Regex("""(?:\b(?:at|on|in|by|around|from|to)\b|@)\s*([.,;?!]|$)""", RegexOption.IGNORE_CASE), "$1")
         cleaned = cleaned.replace(Regex("""\s+([.,;?!])"""), "$1")
-        cleaned = cleaned.replace(Regex("""^[,\-–—:;?\s]+|[,\-–—:;?\s]+$"""), "").trim()
+        cleaned = cleaned.replace(Regex("""^[,\-–—:;?@\s]+|[,\-–—:;?@\s]+$"""), "").trim()
         cleaned = cleaned.replace(Regex("""\s+"""), " ")
 
         if (cleaned.length < 3) {
-            cleaned = firstLine
+            cleaned = originalText.trim()
         }
         if (cleaned.isBlank()) {
             cleaned = "TaskIt Task"
         }
 
-        return if (cleaned.length > 60) {
-            cleaned.take(57).trimEnd() + "..."
-        } else {
-            cleaned
+        // Word-boundary truncation up to 120 characters (avoids cutting mid-word)
+        val maxTitleLength = 120
+        if (cleaned.length > maxTitleLength) {
+            val truncated = cleaned.take(maxTitleLength)
+            val lastSpace = truncated.lastIndexOf(' ')
+            cleaned = if (lastSpace > 40) {
+                truncated.substring(0, lastSpace).trimEnd() + "..."
+            } else {
+                truncated.trimEnd() + "..."
+            }
         }
+
+        return cleaned
     }
 
     fun dispatchCalendarIntent(

@@ -17,13 +17,6 @@ class TaskitTileService : TileService() {
         tile.label = "TaskIt"
         tile.state = android.service.quicksettings.Tile.STATE_ACTIVE
         tile.updateTile()
-
-        // Pre-warm Gemini Nano if user enabled AI and hardware supports it
-        if (AiPreferences.isAiParsingEnabled(this) && AiPreferences.isDeviceAiCapable(this)) {
-            serviceScope.launch {
-                GeminiNanoManager.warmup(this@TaskitTileService)
-            }
-        }
     }
 
     override fun onClick() {

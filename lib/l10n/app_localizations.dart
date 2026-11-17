@@ -391,24 +391,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request sent. Tap \'Add\' on the system dialog.'**
   String get tileRequestSent;
-
-  /// No description provided for @geminiNanoTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Gemini Nano AI'**
-  String get geminiNanoTitle;
-
-  /// No description provided for @geminiNanoSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Smart on-device scheduling'**
-  String get geminiNanoSubtitle;
-
-  /// No description provided for @geminiNanoDownloading.
-  ///
-  /// In en, this message translates to:
-  /// **'Preparing on-device AI model...'**
-  String get geminiNanoDownloading;
 }
 
 class _AppLocalizationsDelegate

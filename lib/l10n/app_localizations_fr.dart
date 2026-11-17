@@ -172,14 +172,4 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tileRequestSent =>
       'Demande envoyée. Appuyez sur \'Ajouter\' à l\'écran.';
-
-  @override
-  String get geminiNanoTitle => 'IA Gemini Nano';
-
-  @override
-  String get geminiNanoSubtitle => 'Planification intelligente sur l\'appareil';
-
-  @override
-  String get geminiNanoDownloading =>
-      'Préparation du modèle IA sur l\'appareil...';
 }

@@ -83,14 +83,15 @@ class MainActivity : FlutterFragmentActivity() {
             }
         }
         if (!sharedText.isNullOrBlank()) {
-            Log.d(TAG, "Scheduling redirect for text: $sharedText")
-            val (title, startTime, endTime) = CalendarHelper.parseTextForEventDetails(sharedText)
+            val textToProcess = sharedText!!
+            Log.d(TAG, "Scheduling redirect for text: $textToProcess")
+            val (title, startTime, endTime) = CalendarHelper.parseTextForEventDetails(textToProcess)
             pendingCalendarTitle = title
             pendingStartTime = startTime
             pendingEndTime = endTime
-            pendingFullText = sharedText
+            pendingFullText = textToProcess
             window.decorView.post {
-                redirectToCalendar(title, startTime, endTime, sharedText)
+                redirectToCalendar(title, startTime, endTime, textToProcess)
             }
         } else {
             Log.d(TAG, "No shared text to process, finishing activity")
@@ -136,50 +137,11 @@ class MainActivity : FlutterFragmentActivity() {
                         val text = call.argument<String>("text")
                         if (!text.isNullOrBlank()) {
                             val (title, startTime, endTime) = CalendarHelper.parseTextForEventDetails(text)
-                            if (startTime != null || !AiPreferences.isAiParsingEnabled(this) || !AiPreferences.isDeviceAiCapable(this)) {
-                                redirectToCalendar(title, startTime, endTime, text)
-                                result.success(null)
-                            } else {
-                                lifecycleScope.launch {
-                                    val aiResult = GeminiNanoManager.parseEventWithTimeout(this@MainActivity, text, 2500L)
-                                    if (aiResult != null && aiResult.second != null) {
-                                        redirectToCalendar(aiResult.first, aiResult.second, aiResult.third, text)
-                                    } else {
-                                        redirectToCalendar(title, null, null, text)
-                                    }
-                                    result.success(null)
-                                }
-                            }
+                            Log.i("TaskItParser", "Processed -> Title: '$title', Start: $startTime")
+                            redirectToCalendar(title, startTime, endTime, text)
+                            result.success(null)
                         } else {
                             result.success(null)
-                        }
-                    }
-                    "getAiStatus" -> {
-                        lifecycleScope.launch {
-                            val status = GeminiNanoManager.checkStatus(this@MainActivity)
-                            val enabled = AiPreferences.isAiParsingEnabled(this@MainActivity)
-                            result.success(mapOf(
-                                "status" to status,
-                                "enabled" to enabled
-                            ))
-                        }
-                    }
-                    "setAiEnabled" -> {
-                        val enabled = call.argument<Boolean>("enabled") ?: false
-                        AiPreferences.setAiParsingEnabled(this, enabled)
-                        result.success(true)
-                    }
-                    "downloadAiModel" -> {
-                        lifecycleScope.launch {
-                            try {
-                                GeminiNanoManager.download().collect { downloadStatus ->
-                                    Log.d(TAG, "Download progress: $downloadStatus")
-                                }
-                                result.success(true)
-                            } catch (e: Exception) {
-                                Log.w(TAG, "Download failed: ${e.message}")
-                                result.success(false)
-                            }
                         }
                     }
                     "requestAddTile" -> {

@@ -8,15 +8,9 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 
 class ClipboardActivity : Activity() {
     private var hasProcessed = false
-    private val activityScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,11 +22,6 @@ class ClipboardActivity : Activity() {
             finish()
             return
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        activityScope.cancel()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -51,47 +40,13 @@ class ClipboardActivity : Activity() {
         if (clipData != null && clipData.itemCount > 0) {
             val copiedText = clipData.getItemAt(0).text?.toString()
             if (!copiedText.isNullOrBlank()) {
-                // 1. Always run existing regex parser first (<15ms)
-                val (regexTitle, regexStart, regexEnd) = CalendarHelper.parseTextForEventDetails(copiedText)
-
-                val isAiEnabled = AiPreferences.isAiParsingEnabled(this)
-                val isAiCapable = AiPreferences.isDeviceAiCapable(this)
-
-                // 2. Fast Path (0ms AI latency):
-                // If regex extracted a clear date/time, OR if AI is disabled / device incapable
-                if (regexStart != null || !isAiEnabled || !isAiCapable) {
-                    val success = CalendarHelper.dispatchCalendarIntent(this, regexTitle, regexStart, regexEnd, copiedText)
-                    if (!success) {
-                        Toast.makeText(this, "Failed to launch calendar application.", Toast.LENGTH_LONG).show()
-                    }
-                    finish()
-                    return
+                val (title, startTime, endTime) = CalendarHelper.parseTextForEventDetails(copiedText)
+                android.util.Log.i("TaskItParser", "Processed -> Title: '$title', Start: $startTime")
+                val success = CalendarHelper.dispatchCalendarIntent(this, title, startTime, endTime, copiedText)
+                if (!success) {
+                    Toast.makeText(this, "Failed to launch calendar application.", Toast.LENGTH_LONG).show()
                 }
-
-                // 3. Slow Path (Ambiguous/Complex Text Fallback with Gemini Nano):
-                Toast.makeText(this, "Parsing schedule...", Toast.LENGTH_SHORT).show()
-                activityScope.launch {
-                    val aiResult = GeminiNanoManager.parseEventWithTimeout(this@ClipboardActivity, copiedText, 2500L)
-                    if (aiResult != null && aiResult.second != null) {
-                        CalendarHelper.dispatchCalendarIntent(
-                            this@ClipboardActivity,
-                            aiResult.first,
-                            aiResult.second,
-                            aiResult.third,
-                            copiedText
-                        )
-                    } else {
-                        // Nano timed out or couldn't parse: fallback immediately to regex best-effort
-                        CalendarHelper.dispatchCalendarIntent(
-                            this@ClipboardActivity,
-                            regexTitle,
-                            null,
-                            null,
-                            copiedText
-                        )
-                    }
-                    finish()
-                }
+                finish()
                 return
             } else {
                 Toast.makeText(this, "Clipboard is empty.", Toast.LENGTH_SHORT).show()
@@ -99,8 +54,6 @@ class ClipboardActivity : Activity() {
         } else {
             Toast.makeText(this, "No text found in clipboard.", Toast.LENGTH_SHORT).show()
         }
-
         finish()
     }
 }
-

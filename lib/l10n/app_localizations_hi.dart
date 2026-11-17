@@ -169,13 +169,4 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get tileRequestSent =>
       'रिक्वेस्ट भेज दी गई है। सिस्टम डायलॉग पर \'Add\' पर टैप करें।';
-
-  @override
-  String get geminiNanoTitle => 'Gemini Nano AI';
-
-  @override
-  String get geminiNanoSubtitle => 'स्मार्ट ऑन-डिवाइस शेड्यूलिंग';
-
-  @override
-  String get geminiNanoDownloading => 'ऑन-डिवाइस AI मॉडल तैयार हो रहा है...';
 }

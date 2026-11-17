@@ -53,8 +53,5 @@
   "appLaunchDescription": "Primero, selecciona y copia el texto como antes.",
   "createFromAppTitle": "Crear desde la App",
   "createFromAppDescription": "Abre la app de TaskIt y toca \"Crear desde el portapapeles\" para guardar el evento.",
-  "tileRequestSent": "Solicitud enviada. Toca 'Añadir' en la pantalla.",
-  "geminiNanoTitle": "IA Gemini Nano",
-  "geminiNanoSubtitle": "Detección inteligente en el dispositivo",
-  "geminiNanoDownloading": "Preparando modelo en el dispositivo..."
+  "tileRequestSent": "Solicitud enviada. Toca 'Añadir' en la pantalla."
 }
