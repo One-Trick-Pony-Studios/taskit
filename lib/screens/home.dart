@@ -21,12 +21,29 @@ class InfoScreen extends StatefulWidget {
 
 class _InfoScreenState extends State<InfoScreen> {
   late Future<int> _sdkVersionFuture;
+  String _aiStatus = 'unavailable';
+  bool _isAiEnabled = false;
+  bool _isAiDownloading = false;
 
   @override
   void initState() {
     super.initState();
     _sdkVersionFuture = _getAndroidSdkInt();
     _checkFirstRun();
+    _loadAiStatus();
+  }
+
+  Future<void> _loadAiStatus() async {
+    try {
+      final statusMap = await widget.channels.getAiStatus();
+      if (mounted) {
+        setState(() {
+          _aiStatus = statusMap['status'] as String? ?? 'unavailable';
+          _isAiEnabled = statusMap['enabled'] as bool? ?? false;
+          _isAiDownloading = _aiStatus == 'downloading';
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _checkFirstRun() async {
@@ -52,6 +69,84 @@ class _InfoScreenState extends State<InfoScreen> {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     return androidInfo.version.sdkInt;
+  }
+
+  Widget _buildAiToggleCard() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: Material(
+        key: ValueKey<String>('ai_card_${_aiStatus}_$_isAiDownloading'),
+        color: Colors.white,
+        elevation: 3,
+        shadowColor: const Color(0x33000000),
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 4),
+          constraints: const BoxConstraints(maxWidth: 320),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.auto_awesome, color: Color(0xFF01A414), size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.geminiNanoTitle,
+                      style: const TextStyle(
+                        color: Color(0xFF01A414),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      _isAiDownloading
+                          ? AppLocalizations.of(context)!.geminiNanoDownloading
+                          : AppLocalizations.of(context)!.geminiNanoSubtitle,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 10,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Transform.scale(
+                scale: 0.85,
+                child: Switch.adaptive(
+                  // ignore: deprecated_member_use
+                  activeColor: const Color(0xFF01A414),
+                  value: _isAiEnabled,
+                  onChanged: (value) async {
+                    setState(() {
+                      _isAiEnabled = value;
+                    });
+                    await widget.channels.setAiEnabled(value);
+                    if (value && _aiStatus == 'downloadable') {
+                      setState(() {
+                        _isAiDownloading = true;
+                      });
+                      await widget.channels.downloadAiModel();
+                      final status = await widget.channels.getAiStatus();
+                      if (mounted) {
+                        setState(() {
+                          _aiStatus = status['status'] as String? ?? 'available';
+                          _isAiDownloading = _aiStatus == 'downloading';
+                        });
+                      }
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -250,7 +345,7 @@ class _InfoScreenState extends State<InfoScreen> {
                               },
                             ),
 
-                            const Spacer(flex: 1),
+                            const SizedBox(height: 12),
 
                             // Conditional action based on Android version
                             if (sdkInt >= 33) ...[
@@ -278,7 +373,6 @@ class _InfoScreenState extends State<InfoScreen> {
                                   }
                                 },
                               ),
-                              const Spacer(flex: 2),
                             ] else if (sdkInt < minSdk) ...[
                               InkWell(
                                 onTap: () async {
@@ -314,10 +408,15 @@ class _InfoScreenState extends State<InfoScreen> {
                                   ),
                                 ),
                               ),
-                              const Spacer(flex: 2),
-                            ] else ...[
-                              const Spacer(flex: 2),
                             ],
+
+                            // Progressive disclosure on-device AI card (hidden if unsupported)
+                            if (_aiStatus != 'unavailable') ...[
+                              const SizedBox(height: 12),
+                              _buildAiToggleCard(),
+                            ],
+
+                            const Spacer(flex: 2),
                           ],
                         ),
                       ),

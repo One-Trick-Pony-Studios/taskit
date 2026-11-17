@@ -53,5 +53,8 @@
   "appLaunchDescription": "सबसे पहले टेक्स्ट सेलेक्ट और कॉपी करें।",
   "createFromAppTitle": "ऐप से बनाएं",
   "createFromAppDescription": "सीधे TaskIt ऐप खोलें और टास्क सेव करने के लिए \"Create from Clipboard\" पर टैप करें।",
-  "tileRequestSent": "रिक्वेस्ट भेज दी गई है। सिस्टम डायलॉग पर 'Add' पर टैप करें।"
+  "tileRequestSent": "रिक्वेस्ट भेज दी गई है। सिस्टम डायलॉग पर 'Add' पर टैप करें।",
+  "geminiNanoTitle": "Gemini Nano AI",
+  "geminiNanoSubtitle": "स्मार्ट ऑन-डिवाइस शेड्यूलिंग",
+  "geminiNanoDownloading": "ऑन-डिवाइस AI मॉडल तैयार हो रहा है..."
 }

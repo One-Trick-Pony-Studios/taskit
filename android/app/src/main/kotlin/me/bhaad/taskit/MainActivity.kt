@@ -18,6 +18,8 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.widget.Toast
 import android.content.Context
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : FlutterFragmentActivity() {
     private var calendarPermissionRequested = false
@@ -134,9 +136,51 @@ class MainActivity : FlutterFragmentActivity() {
                         val text = call.argument<String>("text")
                         if (!text.isNullOrBlank()) {
                             val (title, startTime, endTime) = CalendarHelper.parseTextForEventDetails(text)
-                            redirectToCalendar(title, startTime, endTime, text)
+                            if (startTime != null || !AiPreferences.isAiParsingEnabled(this) || !AiPreferences.isDeviceAiCapable(this)) {
+                                redirectToCalendar(title, startTime, endTime, text)
+                                result.success(null)
+                            } else {
+                                lifecycleScope.launch {
+                                    val aiResult = GeminiNanoManager.parseEventWithTimeout(this@MainActivity, text, 2500L)
+                                    if (aiResult != null && aiResult.second != null) {
+                                        redirectToCalendar(aiResult.first, aiResult.second, aiResult.third, text)
+                                    } else {
+                                        redirectToCalendar(title, null, null, text)
+                                    }
+                                    result.success(null)
+                                }
+                            }
+                        } else {
+                            result.success(null)
                         }
-                        result.success(null)
+                    }
+                    "getAiStatus" -> {
+                        lifecycleScope.launch {
+                            val status = GeminiNanoManager.checkStatus(this@MainActivity)
+                            val enabled = AiPreferences.isAiParsingEnabled(this@MainActivity)
+                            result.success(mapOf(
+                                "status" to status,
+                                "enabled" to enabled
+                            ))
+                        }
+                    }
+                    "setAiEnabled" -> {
+                        val enabled = call.argument<Boolean>("enabled") ?: false
+                        AiPreferences.setAiParsingEnabled(this, enabled)
+                        result.success(true)
+                    }
+                    "downloadAiModel" -> {
+                        lifecycleScope.launch {
+                            try {
+                                GeminiNanoManager.download().collect { downloadStatus ->
+                                    Log.d(TAG, "Download progress: $downloadStatus")
+                                }
+                                result.success(true)
+                            } catch (e: Exception) {
+                                Log.w(TAG, "Download failed: ${e.message}")
+                                result.success(false)
+                            }
+                        }
                     }
                     "requestAddTile" -> {
                         requestAddTileService()

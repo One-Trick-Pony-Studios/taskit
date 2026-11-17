@@ -53,5 +53,8 @@
   "appLaunchDescription": "Wähle zuerst den Text aus und kopiere ihn.",
   "createFromAppTitle": "Aus App erstellen",
   "createFromAppDescription": "Öffne die TaskIt-App direkt und tippe auf \"Aus Zwischenablage erstellen\", um den Termin zu speichern.",
-  "tileRequestSent": "Anfrage gesendet. Tippe im Systemdialog auf 'Hinzufügen'."
+  "tileRequestSent": "Anfrage gesendet. Tippe im Systemdialog auf 'Hinzufügen'.",
+  "geminiNanoTitle": "Gemini Nano KI",
+  "geminiNanoSubtitle": "Intelligente Erkennung auf dem Gerät",
+  "geminiNanoDownloading": "KI-Modell auf dem Gerät wird vorbereitet..."
 }

@@ -170,4 +170,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tileRequestSent =>
       'Request sent. Tap \'Add\' on the system dialog.';
+
+  @override
+  String get geminiNanoTitle => 'Gemini Nano AI';
+
+  @override
+  String get geminiNanoSubtitle => 'Smart on-device scheduling';
+
+  @override
+  String get geminiNanoDownloading => 'Preparing on-device AI model...';
 }

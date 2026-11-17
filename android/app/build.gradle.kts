@@ -30,7 +30,8 @@ android {
 
     defaultConfig {
         applicationId = "me.bhaad.taskit"
-        minSdk = project.findProperty("flutter.minSdkVersion")?.toString()?.toInt() ?: 24
+        val defaultMinSdk = project.findProperty("flutter.minSdkVersion")?.toString()?.toInt() ?: 24
+        minSdk = maxOf(defaultMinSdk, 26)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -89,6 +90,13 @@ flutter {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    implementation("com.google.mlkit:genai-prompt:1.0.0-beta2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+
+    // Unit test dependencies
+    testImplementation("junit:junit:4.13.2")
+
     // Test dependencies for Espresso
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test:runner:1.5.2")

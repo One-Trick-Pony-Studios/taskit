@@ -44,6 +44,9 @@ void main() {
       SharedPreferences.setMockInitialValues({'hasSeenOnboarding': true});
       mockChannels = MockChannels();
       when(mockChannels.checkAndRequestPermission()).thenAnswer((_) async => true);
+      when(mockChannels.getAiStatus()).thenAnswer((_) async => {'status': 'unavailable', 'enabled': false});
+      when(mockChannels.setAiEnabled(any)).thenAnswer((_) async => true);
+      when(mockChannels.downloadAiModel()).thenAnswer((_) async => true);
 
       String clipboardText = '';
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -295,6 +298,54 @@ void main() {
 
       // Verify channel method was called
       verify(mockChannels.requestAddQuickSettingsTile()).called(1);
+    });
+
+    testWidgets('InfoScreen hides AI toggle card when AI status is unavailable', (WidgetTester tester) async {
+      when(mockChannels.getAiStatus()).thenAnswer((_) async => {'status': 'unavailable', 'enabled': false});
+
+      await tester.pumpWidget(buildTestWidget(
+        InfoScreen(channels: mockChannels),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gemini Nano AI'), findsNothing);
+    });
+
+    testWidgets('InfoScreen shows AI toggle card and handles toggle when available', (WidgetTester tester) async {
+      when(mockChannels.getAiStatus()).thenAnswer((_) async => {'status': 'available', 'enabled': false});
+      when(mockChannels.setAiEnabled(true)).thenAnswer((_) async => true);
+
+      await tester.pumpWidget(buildTestWidget(
+        InfoScreen(channels: mockChannels),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gemini Nano AI'), findsOneWidget);
+      expect(find.byType(Switch), findsOneWidget);
+
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+
+      verify(mockChannels.setAiEnabled(true)).called(1);
+    });
+
+    testWidgets('InfoScreen triggers model download when toggling on downloadable AI', (WidgetTester tester) async {
+      when(mockChannels.getAiStatus()).thenAnswer((_) async => {'status': 'downloadable', 'enabled': false});
+      when(mockChannels.setAiEnabled(true)).thenAnswer((_) async => true);
+      when(mockChannels.downloadAiModel()).thenAnswer((_) async => true);
+
+      await tester.pumpWidget(buildTestWidget(
+        InfoScreen(channels: mockChannels),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gemini Nano AI'), findsOneWidget);
+
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+
+      verify(mockChannels.setAiEnabled(true)).called(1);
+      verify(mockChannels.downloadAiModel()).called(1);
     });
   });
 }

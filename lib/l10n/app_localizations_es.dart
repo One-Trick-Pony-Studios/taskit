@@ -170,4 +170,13 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get tileRequestSent =>
       'Solicitud enviada. Toca \'Añadir\' en la pantalla.';
+
+  @override
+  String get geminiNanoTitle => 'IA Gemini Nano';
+
+  @override
+  String get geminiNanoSubtitle => 'Detección inteligente en el dispositivo';
+
+  @override
+  String get geminiNanoDownloading => 'Preparando modelo en el dispositivo...';
 }

@@ -88,4 +88,32 @@ class MockChannels extends _i1.Mock implements _i2.Channels {
         ),
         returnValue: _i3.Future<bool>.value(false),
       ) as _i3.Future<bool>);
+
+  @override
+  _i3.Future<Map<String, dynamic>> getAiStatus() => (super.noSuchMethod(
+        Invocation.method(
+          #getAiStatus,
+          [],
+        ),
+        returnValue:
+            _i3.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i3.Future<Map<String, dynamic>>);
+
+  @override
+  _i3.Future<bool> setAiEnabled(bool? enabled) => (super.noSuchMethod(
+        Invocation.method(
+          #setAiEnabled,
+          [enabled],
+        ),
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
+
+  @override
+  _i3.Future<bool> downloadAiModel() => (super.noSuchMethod(
+        Invocation.method(
+          #downloadAiModel,
+          [],
+        ),
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
 }

@@ -171,4 +171,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get tileRequestSent =>
       'Anfrage gesendet. Tippe im Systemdialog auf \'Hinzufügen\'.';
+
+  @override
+  String get geminiNanoTitle => 'Gemini Nano KI';
+
+  @override
+  String get geminiNanoSubtitle => 'Intelligente Erkennung auf dem Gerät';
+
+  @override
+  String get geminiNanoDownloading =>
+      'KI-Modell auf dem Gerät wird vorbereitet...';
 }

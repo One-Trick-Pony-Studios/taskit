@@ -53,5 +53,8 @@
   "appLaunchDescription": "Sélectionnez d'abord le texte et copiez-le comme d'habitude.",
   "createFromAppTitle": "Créer depuis l'appli",
   "createFromAppDescription": "Ouvrez directement TaskIt et appuyez sur \"Créer depuis le presse-papiers\" pour enregistrer l'événement.",
-  "tileRequestSent": "Demande envoyée. Appuyez sur 'Ajouter' à l'écran."
+  "tileRequestSent": "Demande envoyée. Appuyez sur 'Ajouter' à l'écran.",
+  "geminiNanoTitle": "IA Gemini Nano",
+  "geminiNanoSubtitle": "Planification intelligente sur l'appareil",
+  "geminiNanoDownloading": "Préparation du modèle IA sur l'appareil..."
 }
